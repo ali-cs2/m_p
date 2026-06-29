@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>منصة ذاكرة الموصل</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <nav class="progress-bar" aria-label="مؤشر مراحل الدراسة">
+    <span class="progress-label">مرحلة الدراسة</span>
+    <div class="progress-dots" id="progress-dots"></div>
+  </nav>
+
+  <main class="container">
+    <section id="phase-welcome" class="phase"></section>
+    <section id="phase-consent" class="phase" hidden></section>
+    <section id="phase-demographics" class="phase" hidden></section>
+    <section id="phase-national-pre" class="phase" hidden></section>
+    <section id="phase-resilience-pre" class="phase" hidden></section>
+    <section id="phase-images" class="phase" hidden></section>
+    <section id="phase-national-post" class="phase" hidden></section>
+    <section id="phase-resilience-post" class="phase" hidden></section>
+    <section id="phase-thankyou" class="phase" hidden></section>
+  </main>
+
+  <script src="js/config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/data.js"></script>
+  <script src="js/timer.js"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
