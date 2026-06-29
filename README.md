@@ -66,6 +66,13 @@ SUPABASE_URL = Supabase Project URL
 SUPABASE_ANON_KEY = Supabase anon public key
 ```
 
+يدعم سكربت البناء أيضاً أسماء المتغيرات الآتية إذا كانت مستخدمة في Vercel:
+
+```text
+NEXT_PUBLIC_SUPABASE_URL
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+```
+
 4. اجعل Build Command:
 
 ```text

@@ -520,10 +520,10 @@ function renderThankyou() {
 
 function getRemoteSaveMessage() {
   if (STATE.remote_save.status === "success") {
-    return "تم الحفظ في قاعدة البيانات بنجاح، مع الاحتفاظ بنسخة محلية احتياطية.";
+    return "تم حفظ إجاباتك في قاعدة البيانات بنجاح.";
   }
   if (STATE.remote_save.status === "failed") {
-    return "تعذر الحفظ في قاعدة البيانات، وتم الاحتفاظ بنسخة محلية احتياطية.";
+    return "تعذر الحفظ في قاعدة البيانات، وتم حفظ نسخة محلية احتياطية.";
   }
   if (STATE.remote_save.status === "local-only") {
     return "لم يتم تفعيل ربط قاعدة البيانات بعد، وتم حفظ المشاركة محلياً فقط.";
@@ -532,7 +532,19 @@ function getRemoteSaveMessage() {
 }
 
 async function finalizeRemoteSave() {
-  if (STATE.remote_save.attempted) {
+  const hasSupabase = Boolean(window.MosulMemorySupabase && window.MosulMemorySupabase.isConfigured());
+
+  if (STATE.remote_save.attempted && STATE.remote_save.status === "success") {
+    updateRemoteSaveMessage();
+    return;
+  }
+
+  if (STATE.remote_save.attempted && STATE.remote_save.status === "failed") {
+    updateRemoteSaveMessage();
+    return;
+  }
+
+  if (STATE.remote_save.attempted && STATE.remote_save.status === "local-only" && !hasSupabase) {
     updateRemoteSaveMessage();
     return;
   }
@@ -540,7 +552,7 @@ async function finalizeRemoteSave() {
   const payload = buildStudyPayload();
   saveFinalPayloadBackup(payload);
 
-  if (!window.MosulMemorySupabase || !window.MosulMemorySupabase.isConfigured()) {
+  if (!hasSupabase) {
     STATE.remote_save = { attempted: true, status: "local-only", error: null };
     saveBackup();
     updateRemoteSaveMessage();
@@ -555,6 +567,7 @@ async function finalizeRemoteSave() {
     await window.MosulMemorySupabase.saveStudyData(payload);
     STATE.remote_save = { attempted: true, status: "success", error: null };
   } catch (error) {
+    console.error("تعذر الحفظ في Supabase:", error);
     STATE.remote_save = {
       attempted: true,
       status: "failed",

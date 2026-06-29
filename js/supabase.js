@@ -2,14 +2,21 @@
   const CONFIG = window.MOSUL_MEMORY_CONFIG || {};
   const SUPABASE_URL = CONFIG.SUPABASE_URL || "";
   const SUPABASE_ANON_KEY = CONFIG.SUPABASE_ANON_KEY || "";
+  const isSupabaseEnabled = Boolean(
+    SUPABASE_URL &&
+    SUPABASE_ANON_KEY &&
+    SUPABASE_URL.includes("supabase.co") &&
+    SUPABASE_ANON_KEY.length > 20 &&
+    window.supabase
+  );
   let client = null;
 
   function warnLocalOnly() {
-    console.warn("تحذير: لم يتم تفعيل إعدادات Supabase. ستعمل المنصة بالحفظ المحلي فقط.");
+    console.warn("تحذير: لم يتم تفعيل إعدادات Supabase بشكل صحيح. ستعمل المنصة بالحفظ المحلي فقط.");
   }
 
   function isConfigured() {
-    return Boolean(SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase);
+    return isSupabaseEnabled;
   }
 
   function getClient() {
@@ -22,6 +29,14 @@
     }
     return client;
   }
+
+  console.log("Mosul Memory Supabase config status:", {
+    hasConfig: Boolean(window.MOSUL_MEMORY_CONFIG),
+    hasUrl: Boolean(SUPABASE_URL),
+    hasAnonKey: Boolean(SUPABASE_ANON_KEY),
+    hasSupabaseLibrary: Boolean(window.supabase),
+    enabled: Boolean(isSupabaseEnabled)
+  });
 
   function newId() {
     if (window.crypto && typeof window.crypto.randomUUID === "function") {
@@ -91,13 +106,22 @@
     }));
 
     const participantResult = await db.from("participants").insert(participantRow);
-    if (participantResult.error) throw participantResult.error;
+    if (participantResult.error) {
+      console.error("خطأ Supabase أثناء حفظ بيانات المشارك:", participantResult.error);
+      throw participantResult.error;
+    }
 
     const scalesResult = await db.from("scales").insert(scales);
-    if (scalesResult.error) throw scalesResult.error;
+    if (scalesResult.error) {
+      console.error("خطأ Supabase أثناء حفظ المقاييس:", scalesResult.error);
+      throw scalesResult.error;
+    }
 
     const imagesResult = await db.from("image_responses").insert(imageRows);
-    if (imagesResult.error) throw imagesResult.error;
+    if (imagesResult.error) {
+      console.error("خطأ Supabase أثناء حفظ استجابات الصور:", imagesResult.error);
+      throw imagesResult.error;
+    }
 
     return { participant_id: participantId };
   }
