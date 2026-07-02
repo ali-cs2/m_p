@@ -72,13 +72,12 @@
     const { error } = await state.client.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: getDashboardRedirectUrl(),
-        shouldCreateUser: false
+        emailRedirectTo: getDashboardRedirectUrl()
       }
     });
 
     if (error) {
-      showStatus("تعذر إرسال رابط الدخول. تأكد من إعدادات Supabase Auth.", "error");
+      showStatus(getAuthErrorMessage(error), "error");
       console.error("Supabase auth error:", error);
       return;
     }
@@ -92,6 +91,24 @@
     url.search = "";
     url.hash = "";
     return url.toString();
+  }
+
+  function getAuthErrorMessage(error) {
+    const message = `${error.message || ""} ${error.code || ""}`.toLowerCase();
+
+    if (message.includes("redirect") || message.includes("not allowed")) {
+      return "تعذر إرسال رابط الدخول. تأكد من إضافة رابط لوحة الإدارة في إعدادات Redirect URLs داخل Supabase Auth.";
+    }
+
+    if (message.includes("signup") || message.includes("user") || message.includes("otp")) {
+      return "تعذر إرسال رابط الدخول. تأكد من تفعيل تسجيل الدخول بالبريد الإلكتروني داخل Supabase Auth، ومن استخدام بريد المدير الصحيح.";
+    }
+
+    if (message.includes("rate") || message.includes("limit")) {
+      return "تم إرسال طلبات كثيرة خلال وقت قصير. انتظر قليلاً ثم اطلب رابط دخول جديد.";
+    }
+
+    return "تعذر إرسال رابط الدخول. تأكد من إعدادات Supabase Auth ثم حاول مرة أخرى.";
   }
 
   async function handleLogout() {
