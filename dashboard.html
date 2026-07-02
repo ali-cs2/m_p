@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لوحة بيانات ذاكرة الموصل</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body class="dashboard-body">
+  <main class="dashboard-shell">
+    <header class="dashboard-hero">
+      <div class="hero-mark" aria-hidden="true">
+        <span></span>
+        <i></i>
+      </div>
+      <p class="eyebrow">لوحة الباحث</p>
+      <h1>لوحة بيانات ذاكرة الموصل</h1>
+      <p class="hero-subtitle">مراجعة المشاركات المحفوظة وتحليل نتائج المقاييس واستجابات المواقع.</p>
+    </header>
+
+    <section id="dashboard-status" class="panel dashboard-status" aria-live="polite"></section>
+
+    <section id="login-panel" class="panel login-panel" hidden>
+      <h2>تسجيل دخول الباحث</h2>
+      <p>أدخل بريد حساب المدير المسجل في Supabase لإرسال رابط دخول آمن.</p>
+      <form id="login-form" class="login-form">
+        <label class="field">
+          <span>البريد الإلكتروني</span>
+          <input id="admin-email" type="email" autocomplete="email" required>
+        </label>
+        <button class="btn primary" type="submit">إرسال رابط الدخول</button>
+      </form>
+    </section>
+
+    <section id="dashboard-panel" hidden>
+      <div class="dashboard-actions">
+        <button class="btn secondary" type="button" id="refresh-data">تحديث البيانات</button>
+        <button class="btn secondary" type="button" id="logout-button">تسجيل الخروج</button>
+      </div>
+
+      <section class="summary-grid" id="summary-grid" aria-label="ملخص البيانات"></section>
+
+      <section class="panel filters-panel">
+        <h2>البحث والتصفية</h2>
+        <div class="filters-grid">
+          <label class="field">
+            <span>بحث بالاسم أو رقم المشارك</span>
+            <input id="search-input" type="search" autocomplete="off">
+          </label>
+          <label class="field">
+            <span>الجنس</span>
+            <select id="filter-gender"><option value="">الكل</option></select>
+          </label>
+          <label class="field">
+            <span>جانب السكن</span>
+            <select id="filter-residence"><option value="">الكل</option></select>
+          </label>
+          <label class="field">
+            <span>التحصيل الدراسي</span>
+            <select id="filter-qualification"><option value="">الكل</option></select>
+          </label>
+          <label class="field">
+            <span>المستوى الاقتصادي / طبيعة العمل</span>
+            <select id="filter-economic"><option value="">الكل</option></select>
+          </label>
+        </div>
+      </section>
+
+      <section class="export-row" aria-label="تصدير البيانات">
+        <button class="btn primary" type="button" id="export-summary-csv">تصدير ملخص المشاركين CSV</button>
+        <button class="btn primary" type="button" id="export-full-csv">تصدير البيانات الكاملة CSV</button>
+        <button class="btn primary" type="button" id="export-full-json">تصدير البيانات الكاملة JSON</button>
+      </section>
+
+      <section id="participants-list" class="participants-list" aria-label="قائمة المشاركين"></section>
+    </section>
+  </main>
+
+  <script src="js/config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>
