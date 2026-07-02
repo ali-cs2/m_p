@@ -71,7 +71,10 @@
     showStatus("جاري إرسال رابط الدخول...", "info");
     const { error } = await state.client.auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: window.location.href }
+      options: {
+        emailRedirectTo: getDashboardRedirectUrl(),
+        shouldCreateUser: false
+      }
     });
 
     if (error) {
@@ -81,6 +84,14 @@
     }
 
     showStatus("تم إرسال رابط الدخول إلى البريد الإلكتروني. افتح الرابط ثم عد إلى هذه الصفحة.", "success");
+  }
+
+  function getDashboardRedirectUrl() {
+    const url = new URL(window.location.href);
+    url.pathname = "/dashboard.html";
+    url.search = "";
+    url.hash = "";
+    return url.toString();
   }
 
   async function handleLogout() {
