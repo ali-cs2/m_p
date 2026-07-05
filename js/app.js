@@ -145,6 +145,19 @@ function renderWelcome() {
     <p class="eyebrow">منصة ذاكرة الموصل</p>
     <h1>${STUDY_TEXT.title}</h1>
     <p class="hero-subtitle">${STUDY_TEXT.researchTitle}</p>
+    <div class="welcome-visual" data-state="before">
+      <div class="welcome-image-shell">
+        <img class="welcome-image active" data-hero-image="before" src="${SITES[0].before}" alt="جامع النوري الكبير قبل الحرب">
+        <img class="welcome-image" data-hero-image="after" src="${SITES[0].after}" alt="جامع النوري الكبير بعد الحرب">
+        <div class="welcome-image-overlay">
+          <span id="welcome-visual-label">ذاكرة المكان قبل الحرب</span>
+        </div>
+      </div>
+      <div class="welcome-visual-controls" aria-label="عرض صورة الواجهة">
+        <button class="visual-toggle active" type="button" data-visual-state="before">قبل الحرب</button>
+        <button class="visual-toggle" type="button" data-visual-state="after">بعد الحرب</button>
+      </div>
+    </div>
     <div class="panel">
       <h2>${STUDY_TEXT.welcomeHeading}</h2>
       ${STUDY_TEXT.welcome.map((text) => `<p>${text}</p>`).join("")}
@@ -160,7 +173,25 @@ function renderWelcome() {
       <button class="btn primary" type="button" id="welcome-next">متابعة إلى الموافقة</button>
     </div>
   `;
+  bindWelcomeVisual(el);
   document.getElementById("welcome-next").addEventListener("click", () => goToPhase(1));
+}
+
+function bindWelcomeVisual(scope) {
+  const visual = scope.querySelector(".welcome-visual");
+  const label = scope.querySelector("#welcome-visual-label");
+  const toggles = scope.querySelectorAll(".visual-toggle");
+  const images = scope.querySelectorAll(".welcome-image");
+
+  toggles.forEach((button) => {
+    button.addEventListener("click", () => {
+      const state = button.dataset.visualState;
+      visual.dataset.state = state;
+      label.textContent = state === "before" ? "ذاكرة المكان قبل الحرب" : "ذاكرة المكان بعد الحرب";
+      toggles.forEach((toggle) => toggle.classList.toggle("active", toggle === button));
+      images.forEach((image) => image.classList.toggle("active", image.dataset.heroImage === state));
+    });
+  });
 }
 
 function renderConsent() {

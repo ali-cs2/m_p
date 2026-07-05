@@ -126,23 +126,23 @@ const NATIONAL_ITEMS = [
 
 const SITES = [
   { id: 1, name: "جامع النوري الكبير", before: "images/site_01_before.jpg", after: "images/site_01_after.jpg" },
-  { id: 2, name: "جسر الحرية", before: "images/site_02_before.jpg", after: "images/site_02_after.jpg" },
-  { id: 3, name: "دير مار بهنام", before: "images/site_03_before.jpg", after: "images/site_03_after.jpg" },
-  { id: 4, name: "متحف الموصل", before: "images/site_04_before.jpg", after: "images/site_04_after.jpg" },
-  { id: 5, name: "قلعة الموصل", before: "images/site_05_before.jpg", after: "images/site_05_after.jpg" },
-  { id: 6, name: "شارع النجفي", before: "images/site_06_before.jpg", after: "images/site_06_after.jpg" },
-  { id: 7, name: "كنيسة الطاهرة", before: "images/site_07_before.jpg", after: "images/site_07_after.jpg" },
-  { id: 8, name: "حي الفيصلية", before: "images/site_08_before.jpg", after: "images/site_08_after.jpg" },
-  { id: 9, name: "سوق الشعارين", before: "images/site_09_before.jpg", after: "images/site_09_after.jpg" },
-  { id: 10, name: "الجسر القديم (الحديدي)", before: "images/site_10_before.jpg", after: "images/site_10_after.jpg" }
+  { id: 2, name: "منارة الحدباء", before: "images/site_02_before.jpg", after: "images/site_02_after.jpg" },
+  { id: 3, name: "جامع النبي يونس", before: "images/site_03_before.jpg", after: "images/site_03_after.jpg" },
+  { id: 4, name: "جامع الباشا", before: "images/site_04_before.jpg", after: "images/site_04_after.jpg" },
+  { id: 5, name: "جامع المصفي", before: "images/site_05_before.jpg", after: "images/site_05_after.jpg" },
+  { id: 6, name: "باب السراي", before: "images/site_06_before.jpg", after: "images/site_06_after.jpg" },
+  { id: 7, name: "خان الكمرك", before: "images/site_07_before.jpg", after: "images/site_07_after.jpg" },
+  { id: 8, name: "حمام المنقوشة", before: "images/site_08_before.jpg", after: "images/site_08_after.jpg" },
+  { id: 9, name: "كنيسة الساعة", before: "images/site_09_before.jpg", after: "images/site_09_after.jpg" },
+  { id: 10, name: "كنيسة الطاهرة", before: "images/site_10_before.jpg", after: "images/site_10_after.jpg" }
 ];
 
 const EMOTIONS = [
-  { id: "hope", label: "الأمل", symbol: "أ", def: "شعور بالتفاؤل وإمكانية تحسن المستقبل." },
-  { id: "belonging", label: "الانتماء", symbol: "ن", def: "شعور بأنك جزء من المكان أو المجتمع." },
-  { id: "pride", label: "الفخر", symbol: "ف", def: "شعور بالاعتزاز والكرامة." },
-  { id: "happiness", label: "السعادة", symbol: "س", def: "شعور بالفرح والرضا." },
-  { id: "sadness", label: "الحزن", symbol: "ح", def: "شعور بالأسى أو الألم." },
-  { id: "anger", label: "الغضب", symbol: "غ", def: "شعور بالاستياء أو السخط." },
-  { id: "fear", label: "الخوف", symbol: "خ", def: "شعور بالتهديد أو عدم الأمان." }
+  { id: "hope", label: "الأمل", symbol: "🌱", def: "شعور بالتفاؤل وإمكانية تحسن المستقبل." },
+  { id: "belonging", label: "الانتماء", symbol: "🤝", def: "شعور بأنك جزء من المكان أو المجتمع." },
+  { id: "pride", label: "الفخر", symbol: "🏆", def: "شعور بالاعتزاز والكرامة." },
+  { id: "happiness", label: "السعادة", symbol: "😊", def: "شعور بالفرح والرضا." },
+  { id: "sadness", label: "الحزن", symbol: "😢", def: "شعور بالأسى أو الألم." },
+  { id: "anger", label: "الغضب", symbol: "😠", def: "شعور بالاستياء أو السخط." },
+  { id: "fear", label: "الخوف", symbol: "😨", def: "شعور بالتهديد أو عدم الأمان." }
 ];
