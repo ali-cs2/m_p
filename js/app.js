@@ -147,8 +147,8 @@ function renderWelcome() {
     <p class="hero-subtitle">${STUDY_TEXT.researchTitle}</p>
     <div class="welcome-visual" data-state="before">
       <div class="welcome-image-shell">
-        <img class="welcome-image active" data-hero-image="before" src="${SITES[0].before}" alt="جامع النوري الكبير قبل الحرب">
-        <img class="welcome-image" data-hero-image="after" src="${SITES[0].after}" alt="جامع النوري الكبير بعد الحرب">
+        <img class="welcome-image active" data-hero-image="before" src="${SITES[0].before}" alt="جامع النوري الكبير قبل الحرب" decoding="async" fetchpriority="high">
+        <img class="welcome-image" data-hero-image="after" src="${SITES[0].after}" alt="جامع النوري الكبير بعد الحرب" loading="lazy" decoding="async">
         <div class="welcome-image-overlay">
           <span id="welcome-visual-label">ذاكرة المكان قبل الحرب</span>
         </div>
@@ -475,7 +475,7 @@ function renderImageCard(label, type, src) {
     <article class="image-card ${type}">
       <div class="image-badge">${label}</div>
       <div class="image-frame">
-        <img src="${src}" alt="${label}" loading="eager">
+        <img src="${src}" alt="${label}" loading="eager" decoding="async" fetchpriority="high">
         <div class="image-placeholder" hidden>
           <strong>الصورة غير متوفرة حالياً</strong>
           <span>يرجى إضافة الصورة إلى مجلد الصور بالاسم المحدد في المواصفة.</span>
@@ -489,6 +489,11 @@ function attachImageFallbacks(scope) {
   scope.querySelectorAll(".image-frame").forEach((frame) => {
     const image = frame.querySelector("img");
     const placeholder = frame.querySelector(".image-placeholder");
+    placeholder.hidden = true;
+    image.addEventListener("load", () => {
+      image.hidden = false;
+      placeholder.hidden = true;
+    });
     image.addEventListener("error", () => {
       image.hidden = true;
       placeholder.hidden = false;

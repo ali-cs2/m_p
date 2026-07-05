@@ -79,6 +79,10 @@ body::after {
   animation: sand-drift 28s linear infinite;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 button,
 input,
 select {
