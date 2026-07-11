@@ -161,36 +161,46 @@ function updateProgress(index) {
 function renderWelcome() {
   const el = document.getElementById("phase-welcome");
   el.innerHTML = `
-    <div class="hero-mark" aria-hidden="true">
-      <span></span>
-      <i></i>
-    </div>
-    <p class="eyebrow">منصة ذاكرة الموصل</p>
-    <h1>${STUDY_TEXT.title}</h1>
-    <p class="hero-subtitle">${STUDY_TEXT.researchTitle}</p>
-    <div class="welcome-visual" data-state="before">
-      <div class="welcome-image-shell">
-        <img class="welcome-image active" data-hero-image="before" src="${SITES[0].before}" alt="جامع النوري الكبير قبل الحرب" decoding="async" fetchpriority="high">
-        <img class="welcome-image" data-hero-image="after" src="${SITES[0].after}" alt="جامع النوري الكبير بعد الحرب" loading="lazy" decoding="async">
-        <div class="welcome-image-overlay">
-          <span id="welcome-visual-label">ذاكرة المكان قبل الحرب</span>
+    <section class="welcome-hero">
+      <div class="welcome-copy">
+        <div class="archive-index">دراسة رقمية · الموصل · العراق</div>
+        <p class="eyebrow">منصة ذاكرة الموصل</p>
+        <h1>${STUDY_TEXT.title}</h1>
+        <p class="hero-subtitle">${STUDY_TEXT.researchTitle}</p>
+        <div class="hero-meta" aria-label="معلومات سريعة عن الدراسة">
+          <span><strong>15–20</strong> دقيقة</span>
+          <span><strong>${PHASES.length}</strong> مراحل</span>
+          <span><strong>${SITES.length}</strong> مواقع تراثية</span>
         </div>
       </div>
-      <div class="welcome-visual-controls" aria-label="عرض صورة الواجهة">
-        <button class="visual-toggle active" type="button" data-visual-state="before">قبل الحرب</button>
-        <button class="visual-toggle" type="button" data-visual-state="after">بعد الحرب</button>
+      <div class="welcome-visual" data-state="before">
+        <div class="welcome-image-shell">
+          <img class="welcome-image active" data-hero-image="before" src="${SITES[0].before}" alt="جامع النوري الكبير قبل الحرب" decoding="async" fetchpriority="high">
+          <img class="welcome-image" data-hero-image="after" src="${SITES[0].after}" alt="جامع النوري الكبير بعد الحرب" loading="lazy" decoding="async">
+          <div class="welcome-image-overlay">
+            <span id="welcome-visual-label">ذاكرة المكان قبل الحرب</span>
+          </div>
+        </div>
+        <div class="welcome-visual-controls" aria-label="عرض صورة الواجهة">
+          <button class="visual-toggle active" type="button" data-visual-state="before">قبل الحرب</button>
+          <button class="visual-toggle" type="button" data-visual-state="after">بعد الحرب</button>
+        </div>
       </div>
-    </div>
-    <div class="panel">
-      <h2>${STUDY_TEXT.welcomeHeading}</h2>
-      ${STUDY_TEXT.welcome.map((text) => `<p>${text}</p>`).join("")}
-      <div class="duration">المدة المتوقعة: 15–20 دقيقة</div>
-    </div>
-    <div class="panel muted-panel">
-      <h2>مراحل المشاركة</h2>
-      <ol class="clean-list">
-        ${STUDY_TEXT.stages.map((stage) => `<li>${stage}</li>`).join("")}
-      </ol>
+    </section>
+    <div class="welcome-content-grid">
+      <div class="panel welcome-intro-panel">
+        <p class="panel-kicker">عن الدراسة</p>
+        <h2>${STUDY_TEXT.welcomeHeading}</h2>
+        ${STUDY_TEXT.welcome.map((text) => `<p>${text}</p>`).join("")}
+        <div class="duration">المدة المتوقعة: 15–20 دقيقة</div>
+      </div>
+      <div class="panel muted-panel stages-panel">
+        <p class="panel-kicker">مسار المشاركة</p>
+        <h2>مراحل الدراسة</h2>
+        <ol class="clean-list">
+          ${STUDY_TEXT.stages.map((stage) => `<li>${stage}</li>`).join("")}
+        </ol>
+      </div>
     </div>
     <div class="actions">
       <button class="btn primary" type="button" id="welcome-next">متابعة إلى الموافقة</button>
@@ -224,14 +234,18 @@ function renderConsent() {
       <p class="eyebrow">الموافقة والخصوصية</p>
       <h1>${STUDY_TEXT.privacyHeading}</h1>
     </header>
-    <div class="panel">
-      ${STUDY_TEXT.privacy.map((text) => `<p>${text}</p>`).join("")}
-    </div>
-    <div class="panel">
-      <h2>${STUDY_TEXT.instructionsHeading}</h2>
-      <ul class="clean-list">
-        ${STUDY_TEXT.instructions.map((item) => `<li>${item}</li>`).join("")}
-      </ul>
+    <div class="consent-grid">
+      <div class="panel privacy-panel">
+        <p class="panel-kicker">الميثاق البحثي</p>
+        ${STUDY_TEXT.privacy.map((text) => `<p>${text}</p>`).join("")}
+      </div>
+      <div class="panel instructions-panel">
+        <p class="panel-kicker">قبل البدء</p>
+        <h2>${STUDY_TEXT.instructionsHeading}</h2>
+        <ul class="clean-list">
+          ${STUDY_TEXT.instructions.map((item) => `<li>${item}</li>`).join("")}
+        </ul>
+      </div>
     </div>
     <label class="consent-box">
       <input type="checkbox" id="consent-input" ${STATE.consent ? "checked" : ""}>
