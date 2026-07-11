@@ -1,5 +1,28 @@
 const STORAGE_KEY = "mosul_memory_platform_backup_v1";
 
+const SCALE_UI = {
+  national_pre: {
+    theme: "national-pre",
+    completionMessage: "لقد أكملت اختبار الهوية الوطنية الأول بنجاح.",
+    actionLabel: "الانتقال إلى الاختبار الثاني"
+  },
+  resilience_pre: {
+    theme: "resilience-pre",
+    completionMessage: "لقد أكملت اختبار الصمود النفسي بنجاح.",
+    actionLabel: "الانتقال إلى مرحلة الصور"
+  },
+  national_post: {
+    theme: "national-post",
+    completionMessage: "لقد أكملت اختبار الهوية الوطنية البعدي بنجاح.",
+    actionLabel: "الانتقال إلى الاختبار الأخير"
+  },
+  resilience_post: {
+    theme: "resilience-post",
+    completionMessage: "لقد أكملت الاختبار الأخير بنجاح.",
+    actionLabel: "إنهاء وإرسال الإجابات"
+  }
+};
+
 const DEFAULT_STATE = {
   phase: 0,
   consent: false,
@@ -318,35 +341,38 @@ function validateDemoButton() {
 function renderScale(containerId, title, stateKey, items, labels, nextPhase, scaleType) {
   const el = document.getElementById(containerId);
   const answers = STATE[stateKey].answers;
+  const ui = SCALE_UI[stateKey];
   let current = firstOpenIndex(answers);
 
   function draw() {
     const selected = answers[current];
     const progress = Math.round(((current + 1) / items.length) * 100);
     el.innerHTML = `
-      <header class="section-header">
-        <p class="eyebrow">الفقرة ${current + 1} من ${items.length}</p>
-        <h1>${title}</h1>
-      </header>
-      <div class="panel scale-panel">
-        <div class="mini-progress" aria-hidden="true"><span style="width:${progress}%"></span></div>
-        <div class="scale-intro">${STUDY_TEXT.scaleIntro.map((line) => `<p>${line}</p>`).join("")}</div>
-        <p class="question-text">${items[current]}</p>
-        <div class="scale-options" role="group" aria-label="خيارات الإجابة">
-          ${labels.map((label, index) => {
-            const value = index + 1;
-            return `
-              <button class="scale-option ${selected === value ? "selected" : ""}" type="button" data-value="${value}">
-                <span class="option-number">${value}</span>
-                <span>${label}</span>
-              </button>
-            `;
-          }).join("")}
+      <div class="scale-shell theme-${ui.theme}">
+        <header class="section-header">
+          <p class="eyebrow">الفقرة ${current + 1} من ${items.length}</p>
+          <h1>${title}</h1>
+        </header>
+        <div class="panel scale-panel">
+          <div class="mini-progress" aria-hidden="true"><span style="width:${progress}%"></span></div>
+          <p class="question-text">${items[current]}</p>
+          <div class="scale-options" role="group" aria-label="خيارات الإجابة">
+            ${labels.map((label, index) => {
+              const value = index + 1;
+              const isSelected = selected === value;
+              return `
+                <button class="scale-option ${isSelected ? "selected" : ""}" type="button" data-value="${value}" aria-pressed="${isSelected}">
+                  <span class="option-label">${label}</span>
+                  <span class="option-check" aria-hidden="true">✓</span>
+                </button>
+              `;
+            }).join("")}
+          </div>
         </div>
-      </div>
-      <div class="actions">
-        <button class="btn secondary scale-prev-button" type="button" ${current === 0 ? "disabled" : ""}>السابق</button>
-        <button class="btn primary scale-next-button" type="button" ${selected ? "" : "disabled"}>${current === items.length - 1 ? "إنهاء المقياس" : "التالي"}</button>
+        <div class="actions">
+          <button class="btn secondary scale-prev-button" type="button" ${current === 0 ? "disabled" : ""}>السابق</button>
+          <button class="btn primary scale-next-button" type="button" ${selected ? "" : "disabled"}>${current === items.length - 1 ? "إنهاء المقياس" : "التالي"}</button>
+        </div>
       </div>
     `;
 
@@ -375,8 +401,26 @@ function renderScale(containerId, title, stateKey, items, labels, nextPhase, sca
       }
       STATE[stateKey].total_score = calculateScaleTotal(answers, scaleType);
       saveBackup();
-      goToPhase(nextPhase);
+      drawScaleTransition();
     });
+  }
+
+  function drawScaleTransition() {
+    el.innerHTML = `
+      <div class="scale-shell theme-${ui.theme}">
+        <div class="scale-transition" role="status" aria-live="polite">
+          <div class="transition-success-icon" aria-hidden="true">✓</div>
+          <p class="eyebrow">اكتمل الاختبار بنجاح</p>
+          <h1>شكراً لك</h1>
+          <p class="transition-message">${ui.completionMessage}</p>
+          <button class="btn primary transition-button" type="button">${ui.actionLabel}</button>
+        </div>
+      </div>
+    `;
+
+    el.querySelector(".transition-button").addEventListener("click", () => goToPhase(nextPhase));
+    el.querySelector(".transition-button").focus();
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   draw();
