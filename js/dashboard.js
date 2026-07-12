@@ -215,8 +215,8 @@
     });
 
     return Object.values(map).map((item) => {
-      const totalReaction = item.imageResponses.reduce((sum, row) => sum + Number(row.reaction_time_ms || 0), 0);
-      const averageReaction = item.imageResponses.length ? Math.round(totalReaction / item.imageResponses.length) : 0;
+      const totalReactionMs = item.imageResponses.reduce((sum, row) => sum + Number(row.reaction_time_ms || 0), 0);
+      const averageReactionMs = item.imageResponses.length ? totalReactionMs / item.imageResponses.length : 0;
       const nationalPre = score(item.scales.national_pre);
       const nationalPost = score(item.scales.national_post);
       const resiliencePre = score(item.scales.resilience_pre);
@@ -229,8 +229,8 @@
         resilience_pre_score: resiliencePre,
         resilience_post_score: resiliencePost,
         resilience_score_change: diff(resiliencePost, resiliencePre),
-        total_reaction_time: totalReaction,
-        average_reaction_time: averageReaction
+        total_reaction_time: millisecondsToSeconds(totalReactionMs),
+        average_reaction_time: millisecondsToSeconds(averageReactionMs)
       };
       item.imageResponses.sort((a, b) => Number(a.site_id) - Number(b.site_id));
       return item;
@@ -243,6 +243,12 @@
 
   function diff(after, before) {
     return after !== null && before !== null ? after - before : null;
+  }
+
+  function millisecondsToSeconds(value) {
+    const milliseconds = Number(value);
+    if (!Number.isFinite(milliseconds)) return null;
+    return Math.round((milliseconds / 1000) * 1000) / 1000;
   }
 
   function populateFilters() {
@@ -346,8 +352,8 @@
                 ${scoreItem("الصمود قبل", item.scores.resilience_pre_score)}
                 ${scoreItem("الصمود بعد", item.scores.resilience_post_score)}
                 ${scoreItem("تغير الصمود", item.scores.resilience_score_change, true)}
-                ${scoreItem("زمن الاستجابة الكلي", item.scores.total_reaction_time)}
-                ${scoreItem("متوسط زمن الاستجابة", item.scores.average_reaction_time)}
+                ${scoreItem("زمن الاستجابة الكلي (ثانية)", item.scores.total_reaction_time)}
+                ${scoreItem("متوسط زمن الاستجابة (ثانية)", item.scores.average_reaction_time)}
               </div>
             </div>
           </summary>
@@ -376,7 +382,7 @@
               <th>الحزن</th>
               <th>الغضب</th>
               <th>الخوف</th>
-              <th>زمن الاستجابة</th>
+              <th>زمن الاستجابة (ثانية)</th>
             </tr>
           </thead>
           <tbody>
@@ -391,7 +397,7 @@
                 <td>${formatValue(row.sadness)}</td>
                 <td>${formatValue(row.anger)}</td>
                 <td>${formatValue(row.fear)}</td>
-                <td>${formatValue(row.reaction_time_ms)}</td>
+                <td>${formatValue(millisecondsToSeconds(row.reaction_time_ms))}</td>
               </tr>
             `).join("")}
           </tbody>
@@ -410,48 +416,61 @@
   }
 
   function exportSummaryCsv() {
-    const rows = state.filtered.map((item) => ({
-      participant_id: item.participant_id,
-      name: item.demo.name,
-      age_range: item.demo.age_range,
-      gender: item.demo.gender,
-      academic_qualification: item.demo.academic_qualification,
-      study_stage: item.demo.study_stage,
-      specialization: item.demo.specialization,
-      residence_side: item.demo.residence_side,
-      economic_level: item.demo.economic_level,
-      religion: item.demo.religion,
-      marital_status: item.demo.marital_status,
-      profession: item.demo.profession,
-      created_at: item.demo.created_at,
-      ...item.scores
-    }));
-    downloadText("mosul_participants_summary.csv", toCsv(rows), "text/csv;charset=utf-8");
+    const rows = state.filtered.map(buildArabicSummaryRow);
+    downloadText("ملخص_مشاركي_منصة_ذاكرة_الموصل.csv", toCsv(rows), "text/csv;charset=utf-8");
   }
 
   function exportFullCsv() {
     const rows = [];
     state.filtered.forEach((item) => {
-      const base = {
-        participant_id: item.participant_id,
-        name: item.demo.name,
-        age_range: item.demo.age_range,
-        gender: item.demo.gender,
-        academic_qualification: item.demo.academic_qualification,
-        study_stage: item.demo.study_stage,
-        specialization: item.demo.specialization,
-        residence_side: item.demo.residence_side,
-        economic_level: item.demo.economic_level,
-        religion: item.demo.religion,
-        marital_status: item.demo.marital_status,
-        profession: item.demo.profession,
-        created_at: item.demo.created_at,
-        ...item.scores
-      };
-      if (!item.imageResponses.length) rows.push(base);
-      item.imageResponses.forEach((response) => rows.push({ ...base, ...response }));
+      if (!item.imageResponses.length) rows.push(buildArabicFullRow(item));
+      item.imageResponses.forEach((response) => rows.push(buildArabicFullRow(item, response)));
     });
-    downloadText("mosul_full_dataset.csv", toCsv(rows), "text/csv;charset=utf-8");
+    downloadText("البيانات_الكاملة_لمنصة_ذاكرة_الموصل.csv", toCsv(rows), "text/csv;charset=utf-8");
+  }
+
+  function buildArabicSummaryRow(item) {
+    return {
+      "معرّف المشارك": item.participant_id,
+      "الاسم": item.demo.name,
+      "الفئة العمرية": item.demo.age_range,
+      "الجنس": item.demo.gender,
+      "التحصيل الدراسي": item.demo.academic_qualification,
+      "المرحلة الدراسية": item.demo.study_stage,
+      "التخصص": item.demo.specialization,
+      "جانب السكن": item.demo.residence_side,
+      "طبيعة العمل": item.demo.economic_level,
+      "الديانة": item.demo.religion,
+      "الحالة الاجتماعية": item.demo.marital_status,
+      "المهنة": item.demo.profession,
+      "تاريخ المشاركة": item.demo.created_at,
+      "درجة الهوية الوطنية القبلية": item.scores.national_pre_score,
+      "درجة الهوية الوطنية البعدية": item.scores.national_post_score,
+      "التغير في الهوية الوطنية": item.scores.national_score_change,
+      "درجة الصمود النفسي القبلية": item.scores.resilience_pre_score,
+      "درجة الصمود النفسي البعدية": item.scores.resilience_post_score,
+      "التغير في الصمود النفسي": item.scores.resilience_score_change,
+      "زمن الاستجابة الكلي (ثانية)": item.scores.total_reaction_time,
+      "متوسط زمن الاستجابة (ثانية)": item.scores.average_reaction_time
+    };
+  }
+
+  function buildArabicFullRow(item, response = null) {
+    return {
+      ...buildArabicSummaryRow(item),
+      "معرّف استجابة الصورة": response?.id || "",
+      "رقم الموقع": response?.site_id ?? "",
+      "اسم الموقع": response?.site_name || "",
+      "الأمل": response?.hope ?? "",
+      "الانتماء": response?.belonging ?? "",
+      "الفخر": response?.pride ?? "",
+      "السعادة": response?.happiness ?? "",
+      "الحزن": response?.sadness ?? "",
+      "الغضب": response?.anger ?? "",
+      "الخوف": response?.fear ?? "",
+      "زمن الاستجابة للصورة (ثانية)": response ? millisecondsToSeconds(response.reaction_time_ms) : "",
+      "تاريخ إرسال استجابة الصورة": response?.submitted_at || ""
+    };
   }
 
   function exportFullJson() {
@@ -461,7 +480,7 @@
   function toCsv(rows) {
     if (!rows.length) return "";
     const headers = Object.keys(rows[0]);
-    const lines = [headers.join(",")];
+    const lines = [headers.map(csvCell).join(",")];
     rows.forEach((row) => {
       lines.push(headers.map((header) => csvCell(row[header])).join(","));
     });

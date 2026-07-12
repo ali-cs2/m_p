@@ -1,4 +1,7 @@
-const STORAGE_KEY = "mosul_memory_platform_backup_v1";
+const LEGACY_STORAGE_KEYS = [
+  "mosul_memory_platform_backup_v1",
+  "mosul_memory_platform_final_payload_v1"
+];
 
 const SCALE_UI = {
   national_pre: {
@@ -46,69 +49,54 @@ const DEFAULT_STATE = {
   local_saved_at: null
 };
 
-let STATE = loadState();
+let STATE = clone(DEFAULT_STATE);
+let connectionMessage = "";
 
 document.addEventListener("DOMContentLoaded", () => {
+  clearLegacyLocalData();
+  connectionMessage = isConnectionAvailable() ? "" : "انقطع الاتصال بالإنترنت. أعد الاتصال لبدء مشاركة جديدة.";
+  window.addEventListener("offline", handleConnectionLoss);
+  window.addEventListener("online", handleConnectionRestore);
   renderProgressDots();
   renderAllStaticShells();
-  goToPhase(STATE.phase, false);
+  goToPhase(0, false);
 });
 
-function loadState() {
+function clearLegacyLocalData() {
   try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (!saved) return clone(DEFAULT_STATE);
-    return mergeState(clone(DEFAULT_STATE), JSON.parse(saved));
+    LEGACY_STORAGE_KEYS.forEach((key) => localStorage.removeItem(key));
   } catch (_error) {
-    return clone(DEFAULT_STATE);
+    // The participant flow does not depend on browser storage.
   }
 }
 
-function mergeState(base, saved) {
-  const merged = { ...base, ...saved };
-  ["national_pre", "resilience_pre", "national_post", "resilience_post"].forEach((key) => {
-    merged[key] = {
-      ...base[key],
-      ...(saved[key] || {}),
-      answers: normalizeAnswers(saved[key]?.answers, 20)
-    };
-  });
-  merged.demo = saved.demo || {};
-  merged.images = {
-    current: Number.isInteger(saved.images?.current) ? saved.images.current : 0,
-    responses: Array.isArray(saved.images?.responses) ? saved.images.responses : []
-  };
-  merged.remote_save = {
-    ...base.remote_save,
-    ...(saved.remote_save || {})
-  };
-  merged.phase = Number.isInteger(saved.phase) ? Math.min(Math.max(saved.phase, 0), PHASES.length - 1) : 0;
-  return merged;
+function isConnectionAvailable() {
+  return navigator.onLine !== false;
 }
 
-function normalizeAnswers(answers, count) {
-  const output = new Array(count).fill(null);
-  if (!Array.isArray(answers)) return output;
-  answers.slice(0, count).forEach((answer, index) => {
-    output[index] = answer === null || answer === undefined ? null : Number(answer);
-  });
-  return output;
+function handleConnectionLoss() {
+  connectionMessage = "انقطع الاتصال بالإنترنت، لذلك أُلغيت الجلسة الحالية. أعد الاتصال وابدأ المشاركة من جديد.";
+  resetStudySession();
+}
+
+function handleConnectionRestore() {
+  connectionMessage = "عاد الاتصال بالإنترنت. يمكنك الآن بدء مشاركة جديدة.";
+  if (STATE.phase === 0) renderWelcome();
+}
+
+function resetStudySession() {
+  STATE = clone(DEFAULT_STATE);
+  Timer.reset();
+  renderAllStaticShells();
+  goToPhase(0, false);
 }
 
 function clone(value) {
   return JSON.parse(JSON.stringify(value));
 }
 
-function saveBackup() {
+function markStateUpdated() {
   STATE.local_saved_at = new Date().toISOString();
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(STATE));
-}
-
-function saveFinalPayloadBackup(payload) {
-  localStorage.setItem("mosul_memory_platform_final_payload_v1", JSON.stringify({
-    saved_at: new Date().toISOString(),
-    payload
-  }));
 }
 
 function renderAllStaticShells() {
@@ -118,6 +106,10 @@ function renderAllStaticShells() {
 }
 
 function goToPhase(index, shouldSave = true) {
+  if (index > 0 && !isConnectionAvailable()) {
+    handleConnectionLoss();
+    return;
+  }
   STATE.phase = index;
   document.querySelectorAll(".phase").forEach((section) => {
     section.hidden = true;
@@ -126,7 +118,7 @@ function goToPhase(index, shouldSave = true) {
   active.hidden = false;
   updateProgress(index);
   renderCurrentPhase();
-  if (shouldSave) saveBackup();
+  if (shouldSave) markStateUpdated();
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
@@ -170,6 +162,7 @@ function updateProgress(index) {
 
 function renderWelcome() {
   const el = document.getElementById("phase-welcome");
+  const online = isConnectionAvailable();
   el.innerHTML = `
     <section class="landing-hero">
       <img class="landing-hero-image" src="images/mosul_memory_hero.webp" alt="باحث يراجع صوراً أرشيفية لمعالم الموصل قبل الحرب وبعدها" decoding="async" fetchpriority="high">
@@ -196,8 +189,9 @@ function renderWelcome() {
         ${STUDY_TEXT.stages.map((stage) => `<li>${stage}</li>`).join("")}
       </ol>
     </div>
+    ${connectionMessage ? `<div class="connection-notice ${online ? "is-online" : "is-offline"}" role="status" aria-live="polite">${connectionMessage}</div>` : ""}
     <div class="actions">
-      <button class="btn primary" type="button" id="welcome-next">متابعة إلى الموافقة</button>
+      <button class="btn primary" type="button" id="welcome-next" ${online ? "" : "disabled"}>${online ? "متابعة إلى الموافقة" : "بانتظار الاتصال بالإنترنت"}</button>
     </div>
   `;
   document.getElementById("welcome-next").addEventListener("click", () => goToPhase(1));
@@ -233,7 +227,7 @@ function renderConsent() {
   input.addEventListener("change", () => {
     STATE.consent = input.checked;
     next.disabled = !STATE.consent;
-    saveBackup();
+    markStateUpdated();
   });
   document.getElementById("consent-back").addEventListener("click", () => goToPhase(0));
   next.addEventListener("click", () => {
@@ -312,7 +306,7 @@ function handleDemoInput() {
     STATE.demo[field.id] = String(data.get(field.id) || "").trim();
   });
   validateDemoButton();
-  saveBackup();
+  markStateUpdated();
 }
 
 function isDemoComplete() {
@@ -365,7 +359,7 @@ function renderScale(containerId, stateKey, items, labels, nextPhase, scaleType)
       button.addEventListener("click", () => {
         answers[current] = Number(button.dataset.value);
         STATE[stateKey].total_score = calculateScaleTotal(answers, scaleType);
-        saveBackup();
+        markStateUpdated();
         draw();
       });
     });
@@ -385,7 +379,7 @@ function renderScale(containerId, stateKey, items, labels, nextPhase, scaleType)
         return;
       }
       STATE[stateKey].total_score = calculateScaleTotal(answers, scaleType);
-      saveBackup();
+      markStateUpdated();
       drawScaleTransition();
     });
   }
@@ -453,7 +447,7 @@ function renderImagesPhase() {
       </aside>
     </div>
     <div class="mini-progress" aria-hidden="true"><span style="width:${Math.round(((current + 1) / SITES.length) * 100)}%"></span></div>
-    ${renderImageComparison(site)}
+    ${renderImageSwipe(site)}
     <div class="panel emotions-panel">
       <h2>كيف تشعر تجاه ما رأيت؟</h2>
       <p class="emotion-instruction">اختر الوجه الذي يعبّر عن درجة شعورك في كل سطر.</p>
@@ -467,7 +461,7 @@ function renderImagesPhase() {
   `;
 
   attachImageFallbacks(el);
-  bindImageComparison(el);
+  bindImageSwipe(el);
 
   const infoButton = el.querySelector(".site-info-button");
   const infoCard = el.querySelector(".site-info-card");
@@ -507,7 +501,7 @@ function renderImagesPhase() {
     };
     STATE.images.responses.push(response);
     STATE.images.current = STATE.images.responses.length;
-    saveBackup();
+    markStateUpdated();
     if (STATE.images.responses.length < SITES.length) {
       renderImagesPhase();
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -517,39 +511,119 @@ function renderImagesPhase() {
   });
 }
 
-function renderImageComparison(site) {
+function renderImageSwipe(site) {
   return `
-    <div class="comparison-wrap">
-      <div class="comparison-card" style="--split: 50%">
-        <div class="comparison-layer comparison-after" data-image-shell>
-          <img src="${site.after}" alt="${site.name} بعد الحرب" loading="eager" decoding="async" fetchpriority="high">
-          <div class="image-placeholder" hidden><strong>الصورة غير متوفرة حالياً</strong></div>
+    <div class="image-swipe-wrap">
+      <div class="image-swipe-card" data-current="before" tabindex="0" role="group" aria-roledescription="عارض صور بالسحب" aria-label="${site.name} قبل الحرب. اسحب لليسار لعرض الصورة بعد الحرب">
+        <div class="image-swipe-track" style="--slide-offset: 0%; --drag-offset: 0px">
+          <figure class="image-swipe-slide image-swipe-before" data-image-shell>
+            <img src="${site.before}" alt="${site.name} قبل الحرب" loading="eager" decoding="async" fetchpriority="high" draggable="false">
+            <div class="image-placeholder" hidden><strong>الصورة غير متوفرة حالياً</strong></div>
+            <figcaption class="image-swipe-label">قبل الحرب</figcaption>
+          </figure>
+          <figure class="image-swipe-slide image-swipe-after" data-image-shell>
+            <img src="${site.after}" alt="${site.name} بعد الحرب" loading="eager" decoding="async" fetchpriority="high" draggable="false">
+            <div class="image-placeholder" hidden><strong>الصورة غير متوفرة حالياً</strong></div>
+            <figcaption class="image-swipe-label">بعد الحرب</figcaption>
+          </figure>
         </div>
-        <div class="comparison-layer comparison-before" data-image-shell>
-          <img src="${site.before}" alt="${site.name} قبل الحرب" loading="eager" decoding="async" fetchpriority="high">
-          <div class="image-placeholder" hidden><strong>الصورة غير متوفرة حالياً</strong></div>
-        </div>
-        <span class="comparison-label comparison-label-after">بعد الحرب</span>
-        <span class="comparison-label comparison-label-before">قبل الحرب</span>
-        <div class="comparison-divider" aria-hidden="true"><span>↔</span></div>
-        <input class="comparison-range" type="range" min="0" max="100" value="50" dir="ltr" aria-label="اسحب لمقارنة صورة الموقع قبل الحرب وبعدها" aria-valuetext="عرض متوازن للصورتين">
+        <div class="image-swipe-cue" aria-hidden="true"><span>←</span></div>
       </div>
-      <p class="comparison-hint"><span aria-hidden="true">↔</span> اسحب أفقياً لاكتشاف الصورة قبل الحرب وبعدها</p>
+      <div class="image-swipe-meta">
+        <p class="image-swipe-hint"><span class="image-swipe-hint-arrow" aria-hidden="true">←</span><span data-swipe-hint>اسحب لليسار لعرض صورة بعد الحرب</span></p>
+        <div class="image-swipe-dots" aria-hidden="true"><span class="active"></span><span></span></div>
+      </div>
+      <p class="sr-only" data-swipe-status aria-live="polite">تعرض الآن صورة قبل الحرب</p>
     </div>
   `;
 }
 
-function bindImageComparison(scope) {
-  const card = scope.querySelector(".comparison-card");
-  const range = scope.querySelector(".comparison-range");
-  const update = () => {
-    const value = Number(range.value);
-    card.style.setProperty("--split", `${value}%`);
-    const description = value < 35 ? "إظهار أكبر للصورة بعد الحرب" : value > 65 ? "إظهار أكبر للصورة قبل الحرب" : "عرض متوازن للصورتين";
-    range.setAttribute("aria-valuetext", description);
+function bindImageSwipe(scope) {
+  const card = scope.querySelector(".image-swipe-card");
+  const track = scope.querySelector(".image-swipe-track");
+  const hint = scope.querySelector("[data-swipe-hint]");
+  const hintArrow = scope.querySelector(".image-swipe-hint-arrow");
+  const cueArrow = scope.querySelector(".image-swipe-cue span");
+  const status = scope.querySelector("[data-swipe-status]");
+  const dots = [...scope.querySelectorAll(".image-swipe-dots span")];
+  let currentIndex = 0;
+  let startX = 0;
+  let dragX = 0;
+  let pointerId = null;
+
+  const updateView = (index, announce = true) => {
+    currentIndex = Math.max(0, Math.min(index, 1));
+    const isAfter = currentIndex === 1;
+    track.style.setProperty("--slide-offset", isAfter ? "-50%" : "0%");
+    track.style.setProperty("--drag-offset", "0px");
+    card.dataset.current = isAfter ? "after" : "before";
+    card.setAttribute("aria-label", isAfter
+      ? "تعرض صورة بعد الحرب. اسحب لليمين للعودة إلى الصورة قبل الحرب"
+      : "تعرض صورة قبل الحرب. اسحب لليسار لعرض الصورة بعد الحرب");
+    hint.textContent = isAfter ? "اسحب لليمين للعودة إلى صورة قبل الحرب" : "اسحب لليسار لعرض صورة بعد الحرب";
+    hintArrow.textContent = isAfter ? "→" : "←";
+    cueArrow.textContent = isAfter ? "→" : "←";
+    dots.forEach((dot, dotIndex) => dot.classList.toggle("active", dotIndex === currentIndex));
+    if (announce) status.textContent = isAfter ? "تعرض الآن صورة بعد الحرب" : "تعرض الآن صورة قبل الحرب";
   };
-  range.addEventListener("input", update);
-  update();
+
+  const startDrag = (event) => {
+    if (event.pointerType === "mouse" && event.button !== 0) return;
+    pointerId = event.pointerId;
+    startX = event.clientX;
+    dragX = 0;
+    card.setPointerCapture(pointerId);
+    card.classList.add("is-dragging");
+    track.classList.add("is-dragging");
+  };
+
+  const moveDrag = (event) => {
+    if (pointerId !== event.pointerId) return;
+    dragX = event.clientX - startX;
+    const pullingPastStart = currentIndex === 0 && dragX > 0;
+    const pullingPastEnd = currentIndex === 1 && dragX < 0;
+    const visibleDrag = pullingPastStart || pullingPastEnd ? dragX * 0.18 : dragX;
+    track.style.setProperty("--drag-offset", `${visibleDrag}px`);
+  };
+
+  const endDrag = (event) => {
+    if (pointerId !== event.pointerId) return;
+    const threshold = Math.min(110, card.clientWidth * 0.2);
+    let targetIndex = currentIndex;
+    if (dragX < -threshold && currentIndex === 0) {
+      targetIndex = 1;
+    } else if (dragX > threshold && currentIndex === 1) {
+      targetIndex = 0;
+    }
+    card.classList.remove("is-dragging");
+    track.classList.remove("is-dragging");
+    void track.offsetWidth;
+    updateView(targetIndex, targetIndex !== currentIndex);
+    if (card.hasPointerCapture(pointerId)) card.releasePointerCapture(pointerId);
+    pointerId = null;
+    dragX = 0;
+  };
+
+  card.addEventListener("pointerdown", startDrag);
+  card.addEventListener("pointermove", moveDrag);
+  card.addEventListener("pointerup", endDrag);
+  card.addEventListener("pointercancel", endDrag);
+  card.addEventListener("keydown", (event) => {
+    if (event.key === "ArrowLeft" && currentIndex === 0) {
+      event.preventDefault();
+      updateView(1);
+    }
+    if (event.key === "ArrowRight" && currentIndex === 1) {
+      event.preventDefault();
+      updateView(0);
+    }
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      updateView(currentIndex === 0 ? 1 : 0);
+    }
+  });
+
+  updateView(0, false);
 }
 
 function attachImageFallbacks(scope) {
@@ -638,7 +712,7 @@ function areEmotionsComplete(answers) {
 }
 
 function renderThankyou() {
-  saveBackup();
+  markStateUpdated();
   const el = document.getElementById("phase-thankyou");
   el.innerHTML = `
     <div class="thankyou-wrap">
@@ -662,11 +736,8 @@ function renderThankyou() {
   finalizeRemoteSave();
   document.getElementById("copy-share-link").addEventListener("click", copyPlatformLink);
   document.getElementById("clear-local").addEventListener("click", () => {
-    localStorage.removeItem(STORAGE_KEY);
-    localStorage.removeItem("mosul_memory_platform_final_payload_v1");
-    STATE = clone(DEFAULT_STATE);
-    renderAllStaticShells();
-    goToPhase(0);
+    connectionMessage = "";
+    resetStudySession();
   });
 }
 
@@ -708,50 +779,31 @@ async function copyPlatformLink() {
   }
 }
 
-function getRemoteSaveMessage() {
-  if (STATE.remote_save.status === "success") {
-    return "تم حفظ إجاباتك في قاعدة البيانات بنجاح.";
-  }
-  if (STATE.remote_save.status === "failed") {
-    return "تعذر الحفظ في قاعدة البيانات، وتم حفظ نسخة محلية احتياطية.";
-  }
-  if (STATE.remote_save.status === "local-only") {
-    return "لم يتم تفعيل ربط قاعدة البيانات بعد، وتم حفظ المشاركة محلياً فقط.";
-  }
-  return "جاري التحقق من إعدادات الحفظ الخارجي...";
-}
-
 async function finalizeRemoteSave() {
   const hasSupabase = Boolean(window.MosulMemorySupabase && window.MosulMemorySupabase.isConfigured());
 
   if (STATE.remote_save.attempted && STATE.remote_save.status === "success") {
-    updateRemoteSaveMessage();
     return;
   }
 
   if (STATE.remote_save.attempted && STATE.remote_save.status === "failed") {
-    updateRemoteSaveMessage();
     return;
   }
 
-  if (STATE.remote_save.attempted && STATE.remote_save.status === "local-only" && !hasSupabase) {
-    updateRemoteSaveMessage();
+  if (STATE.remote_save.attempted && STATE.remote_save.status === "unavailable" && !hasSupabase) {
     return;
   }
 
   const payload = buildStudyPayload();
-  saveFinalPayloadBackup(payload);
 
   if (!hasSupabase) {
-    STATE.remote_save = { attempted: true, status: "local-only", error: null };
-    saveBackup();
-    updateRemoteSaveMessage();
+    STATE.remote_save = { attempted: true, status: "unavailable", error: "إعدادات قاعدة البيانات غير متاحة" };
+    markStateUpdated();
     return;
   }
 
   STATE.remote_save = { attempted: true, status: "saving", error: null };
-  saveBackup();
-  updateRemoteSaveMessage("جاري حفظ البيانات في قاعدة البيانات...");
+  markStateUpdated();
 
   try {
     await window.MosulMemorySupabase.saveStudyData(payload);
@@ -763,17 +815,9 @@ async function finalizeRemoteSave() {
       status: "failed",
       error: error && error.message ? error.message : "تعذر الحفظ الخارجي"
     };
-    saveFinalPayloadBackup(payload);
   }
 
-  saveBackup();
-  updateRemoteSaveMessage();
-}
-
-function updateRemoteSaveMessage(message) {
-  const status = document.getElementById("remote-save-status");
-  if (!status) return;
-  status.innerHTML = `<p>${message || getRemoteSaveMessage()}</p>`;
+  markStateUpdated();
 }
 
 function buildStudyPayload() {
