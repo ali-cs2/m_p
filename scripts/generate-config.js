@@ -14,7 +14,7 @@ if ((!process.env.SUPABASE_URL || !process.env.SUPABASE_ANON_KEY) && url && anon
 }
 
 if (!url || !anonKey) {
-  console.warn("تحذير: سيتم إنشاء js/config.js بقيم فارغة، وستعمل المنصة بالحفظ المحلي فقط.");
+  console.warn("تحذير: سيتم إنشاء js/config.js بقيم فارغة، ولن تُحفظ المشاركات حتى تفعيل Supabase.");
 }
 
 const config = `window.MOSUL_MEMORY_CONFIG = {

@@ -2,7 +2,7 @@
 
 منصة عربية RTL لدراسة أثر الذاكرة البصرية للتراث الموصلي قبل الحرب وبعدها على الهوية الوطنية والصمود النفسي.
 
-المشروع Vanilla HTML/CSS/JavaScript بدون React وبدون Backend خاص. يعمل محلياً عبر `localStorage`، ويمكن ربطه بـ Supabase عبر مفتاح `anon public` فقط.
+المشروع Vanilla HTML/CSS/JavaScript بدون React وبدون Backend خاص، ويمكن ربطه بـ Supabase عبر مفتاح `anon public` فقط. تبقى إجابات المشارك في ذاكرة الجلسة المؤقتة ولا تُحفظ في `localStorage`؛ تحديث الصفحة أو انقطاع الاتصال يعيد المشاركة إلى البداية.
 
 ## التشغيل المحلي
 
@@ -97,7 +97,7 @@ npm run build
 4. اختبر مسار مشارك كامل.
 5. افتح Supabase Table Editor وتأكد من ظهور الصفوف.
 
-إذا لم تضف `js/config.js` أو لم تضف المفاتيح، ستعمل المنصة بالحفظ المحلي فقط.
+إذا لم تضف `js/config.js` أو لم تضف المفاتيح، يمكن استعراض المنصة محلياً لكن لن تُحفظ المشاركة نهائياً.
 
 ### D. التحقق من الحفظ
 
@@ -106,11 +106,13 @@ npm run build
 - جدول `participants` يستقبل صفاً واحداً للمشارك.
 - جدول `scales` يستقبل أربعة صفوف لكل مشارك.
 - جدول `image_responses` يستقبل عشرة صفوف لكل مشارك.
-- إذا فشل Supabase، تبقى نسخة احتياطية في `localStorage`.
+- لا تُنشأ نسخة محلية من إجابات المشارك. إذا انقطع الاتصال أو فشل الإرسال، يجب بدء مشاركة جديدة بعد عودة الاتصال.
 
-## استخراج CSV للتحليل
+## استخراج البيانات للباحثين
 
-من Supabase SQL Editor يمكن تشغيل استعلام مثل:
+الطريقة الموصى بها هي فتح `dashboard.html` واستخدام أزرار التصدير. ملفات CSV الناتجة متوافقة مع Excel، وأسماء الأعمدة والملفات مكتوبة بالعربية، وجميع أزمنة الاستجابة محوّلة إلى الثواني.
+
+يمكن أيضاً استخراج البيانات من Supabase SQL Editor عبر استعلام مثل:
 
 ```sql
 select
@@ -134,7 +136,7 @@ select
   ir.sadness,
   ir.anger,
   ir.fear,
-  ir.reaction_time_ms,
+  round(ir.reaction_time_ms / 1000.0, 3) as "زمن الاستجابة (ثانية)",
   ir.submitted_at
 from image_responses ir
 join participants p on p.id = ir.participant_id
@@ -142,12 +144,6 @@ order by ir.submitted_at;
 ```
 
 ثم استخدم زر Download CSV من نتائج Supabase.
-
-محلياً، يمكن نسخ النسخة الاحتياطية من Console:
-
-```javascript
-copy(localStorage.getItem("mosul_memory_platform_final_payload_v1"))
-```
 
 ## دعم Supabase CLI اختياري
 

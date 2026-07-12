@@ -11,8 +11,8 @@
   );
   let client = null;
 
-  function warnLocalOnly() {
-    console.warn("تحذير: لم يتم تفعيل إعدادات Supabase بشكل صحيح. ستعمل المنصة بالحفظ المحلي فقط.");
+  function warnStorageUnavailable() {
+    console.warn("تحذير: لم يتم تفعيل إعدادات Supabase بشكل صحيح. لن تُحفظ المشاركات حتى تفعيل الاتصال بقاعدة البيانات.");
   }
 
   function isConfigured() {
@@ -21,7 +21,7 @@
 
   function getClient() {
     if (!isConfigured()) {
-      warnLocalOnly();
+      warnStorageUnavailable();
       return null;
     }
     if (!client) {
@@ -132,6 +132,6 @@
   };
 
   if (!isConfigured()) {
-    warnLocalOnly();
+    warnStorageUnavailable();
   }
 })();
