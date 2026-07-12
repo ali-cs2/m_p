@@ -2,25 +2,35 @@ const STORAGE_KEY = "mosul_memory_platform_backup_v1";
 
 const SCALE_UI = {
   national_pre: {
-    theme: "national-pre",
-    completionMessage: "لقد أكملت اختبار الهوية الوطنية الأول بنجاح.",
-    actionLabel: "الانتقال إلى الاختبار الثاني"
+    theme: "pre",
+    completionMessage: "لقد أكملت القسم الأول بنجاح.",
+    actionLabel: "الانتقال إلى القسم التالي"
   },
   resilience_pre: {
-    theme: "resilience-pre",
-    completionMessage: "لقد أكملت اختبار الصمود النفسي بنجاح.",
+    theme: "pre",
+    completionMessage: "لقد أكملت هذا القسم بنجاح.",
     actionLabel: "الانتقال إلى مرحلة الصور"
   },
   national_post: {
-    theme: "national-post",
-    completionMessage: "لقد أكملت اختبار الهوية الوطنية البعدي بنجاح.",
-    actionLabel: "الانتقال إلى الاختبار الأخير"
+    theme: "post",
+    completionMessage: "لقد أكملت القسم بنجاح.",
+    actionLabel: "الانتقال إلى القسم الأخير"
   },
   resilience_post: {
-    theme: "resilience-post",
-    completionMessage: "لقد أكملت الاختبار الأخير بنجاح.",
+    theme: "post",
+    completionMessage: "لقد أكملت القسم الأخير بنجاح.",
     actionLabel: "إنهاء وإرسال الإجابات"
   }
+};
+
+const EMOTION_FACE_COLORS = {
+  hope: "#8faa88",
+  belonging: "#b6a181",
+  pride: "#b5a46f",
+  happiness: "#aeb78a",
+  sadness: "#7893a0",
+  anger: "#a9786d",
+  fear: "#8a8494"
 };
 
 const DEFAULT_STATE = {
@@ -123,19 +133,19 @@ function goToPhase(index, shouldSave = true) {
 function renderCurrentPhase() {
   const phaseId = PHASES[STATE.phase].id;
   if (phaseId === "national-pre") {
-    renderScale("phase-national-pre", "مقياس الهوية الوطنية القبلي", "national_pre", NATIONAL_ITEMS, SCALE_LABELS_NATIONAL, 4, "national");
+    renderScale("phase-national-pre", "national_pre", NATIONAL_ITEMS, SCALE_LABELS_NATIONAL, 4, "national");
   }
   if (phaseId === "resilience-pre") {
-    renderScale("phase-resilience-pre", "مقياس الصمود النفسي القبلي", "resilience_pre", RESILIENCE_ITEMS, SCALE_LABELS_RESILIENCE, 5, "resilience");
+    renderScale("phase-resilience-pre", "resilience_pre", RESILIENCE_ITEMS, SCALE_LABELS_RESILIENCE, 5, "resilience");
   }
   if (phaseId === "images") {
     renderImagesPhase();
   }
   if (phaseId === "national-post") {
-    renderScale("phase-national-post", "مقياس الهوية الوطنية البعدي", "national_post", NATIONAL_ITEMS, SCALE_LABELS_NATIONAL, 7, "national");
+    renderScale("phase-national-post", "national_post", NATIONAL_ITEMS, SCALE_LABELS_NATIONAL, 7, "national");
   }
   if (phaseId === "resilience-post") {
-    renderScale("phase-resilience-post", "مقياس الصمود النفسي البعدي", "resilience_post", RESILIENCE_ITEMS, SCALE_LABELS_RESILIENCE, 8, "resilience");
+    renderScale("phase-resilience-post", "resilience_post", RESILIENCE_ITEMS, SCALE_LABELS_RESILIENCE, 8, "resilience");
   }
   if (phaseId === "thankyou") {
     renderThankyou();
@@ -161,27 +171,21 @@ function updateProgress(index) {
 function renderWelcome() {
   const el = document.getElementById("phase-welcome");
   el.innerHTML = `
-    <div class="hero-mark" aria-hidden="true">
-      <span></span>
-      <i></i>
-    </div>
-    <p class="eyebrow">منصة ذاكرة الموصل</p>
-    <h1>${STUDY_TEXT.title}</h1>
-    <p class="hero-subtitle">${STUDY_TEXT.researchTitle}</p>
-    <div class="welcome-visual" data-state="before">
-      <div class="welcome-image-shell">
-        <img class="welcome-image active" data-hero-image="before" src="${SITES[0].before}" alt="جامع النوري الكبير قبل الحرب" decoding="async" fetchpriority="high">
-        <img class="welcome-image" data-hero-image="after" src="${SITES[0].after}" alt="جامع النوري الكبير بعد الحرب" loading="lazy" decoding="async">
-        <div class="welcome-image-overlay">
-          <span id="welcome-visual-label">ذاكرة المكان قبل الحرب</span>
+    <section class="landing-hero">
+      <img class="landing-hero-image" src="images/mosul_memory_hero.webp" alt="باحث يراجع صوراً أرشيفية لمعالم الموصل قبل الحرب وبعدها" decoding="async" fetchpriority="high">
+      <div class="landing-hero-overlay"></div>
+      <div class="landing-hero-content">
+        <p class="eyebrow">منصة رقمية تفاعلية</p>
+        <h1>${STUDY_TEXT.title}</h1>
+        <p class="hero-subtitle">${STUDY_TEXT.researchTitle}</p>
+        <div class="hero-highlights" aria-label="معلومات مختصرة عن المشاركة">
+          <span>10 مواقع تراثية</span>
+          <span>15–20 دقيقة</span>
+          <span>مشاركة آمنة</span>
         </div>
       </div>
-      <div class="welcome-visual-controls" aria-label="عرض صورة الواجهة">
-        <button class="visual-toggle active" type="button" data-visual-state="before">قبل الحرب</button>
-        <button class="visual-toggle" type="button" data-visual-state="after">بعد الحرب</button>
-      </div>
-    </div>
-    <div class="panel">
+    </section>
+    <div class="panel welcome-panel">
       <h2>${STUDY_TEXT.welcomeHeading}</h2>
       ${STUDY_TEXT.welcome.map((text) => `<p>${text}</p>`).join("")}
       <div class="duration">المدة المتوقعة: 15–20 دقيقة</div>
@@ -196,25 +200,7 @@ function renderWelcome() {
       <button class="btn primary" type="button" id="welcome-next">متابعة إلى الموافقة</button>
     </div>
   `;
-  bindWelcomeVisual(el);
   document.getElementById("welcome-next").addEventListener("click", () => goToPhase(1));
-}
-
-function bindWelcomeVisual(scope) {
-  const visual = scope.querySelector(".welcome-visual");
-  const label = scope.querySelector("#welcome-visual-label");
-  const toggles = scope.querySelectorAll(".visual-toggle");
-  const images = scope.querySelectorAll(".welcome-image");
-
-  toggles.forEach((button) => {
-    button.addEventListener("click", () => {
-      const state = button.dataset.visualState;
-      visual.dataset.state = state;
-      label.textContent = state === "before" ? "ذاكرة المكان قبل الحرب" : "ذاكرة المكان بعد الحرب";
-      toggles.forEach((toggle) => toggle.classList.toggle("active", toggle === button));
-      images.forEach((image) => image.classList.toggle("active", image.dataset.heroImage === state));
-    });
-  });
 }
 
 function renderConsent() {
@@ -338,7 +324,7 @@ function validateDemoButton() {
   if (next) next.disabled = !isDemoComplete();
 }
 
-function renderScale(containerId, title, stateKey, items, labels, nextPhase, scaleType) {
+function renderScale(containerId, stateKey, items, labels, nextPhase, scaleType) {
   const el = document.getElementById(containerId);
   const answers = STATE[stateKey].answers;
   const ui = SCALE_UI[stateKey];
@@ -350,8 +336,7 @@ function renderScale(containerId, title, stateKey, items, labels, nextPhase, sca
     el.innerHTML = `
       <div class="scale-shell theme-${ui.theme}">
         <header class="section-header">
-          <p class="eyebrow">الفقرة ${current + 1} من ${items.length}</p>
-          <h1>${title}</h1>
+          <p class="eyebrow">السؤال ${current + 1} من ${items.length}</p>
         </header>
         <div class="panel scale-panel">
           <div class="mini-progress" aria-hidden="true"><span style="width:${progress}%"></span></div>
@@ -410,7 +395,7 @@ function renderScale(containerId, title, stateKey, items, labels, nextPhase, sca
       <div class="scale-shell theme-${ui.theme}">
         <div class="scale-transition" role="status" aria-live="polite">
           <div class="transition-success-icon" aria-hidden="true">✓</div>
-          <p class="eyebrow">اكتمل الاختبار بنجاح</p>
+          <p class="eyebrow">اكتمل القسم بنجاح</p>
           <h1>شكراً لك</h1>
           <p class="transition-message">${ui.completionMessage}</p>
           <button class="btn primary transition-button" type="button">${ui.actionLabel}</button>
@@ -451,18 +436,27 @@ function renderImagesPhase() {
   Timer.reset();
 
   el.innerHTML = `
-    <header class="section-header">
-      <p class="eyebrow">الموقع ${current + 1} من ${SITES.length}</p>
-      <h1>${site.name}</h1>
-      <p>${STUDY_TEXT.imageInstructions}</p>
-    </header>
-    <div class="mini-progress" aria-hidden="true"><span style="width:${Math.round(((current + 1) / SITES.length) * 100)}%"></span></div>
-    <div class="images-grid">
-      ${renderImageCard("قبل الحرب", "before", site.before)}
-      ${renderImageCard("بعد الحرب", "after", site.after)}
+    <div class="site-heading-wrap">
+      <header class="section-header site-section-header">
+        <p class="eyebrow">الموقع ${current + 1} من ${SITES.length}</p>
+        <div class="site-title-line">
+          <h1>${site.name}</h1>
+          <button class="site-info-button" type="button" aria-label="معلومات عن ${site.name}" aria-expanded="false" aria-controls="site-info-card">i</button>
+        </div>
+        <p>${STUDY_TEXT.imageInstructions}</p>
+      </header>
+      <aside class="site-info-card" id="site-info-card" hidden>
+        <button class="site-info-close" type="button" aria-label="إغلاق معلومات الموقع">×</button>
+        <p class="eyebrow">عن الموقع</p>
+        <h2>${site.name}</h2>
+        <p>${site.info}</p>
+      </aside>
     </div>
+    <div class="mini-progress" aria-hidden="true"><span style="width:${Math.round(((current + 1) / SITES.length) * 100)}%"></span></div>
+    ${renderImageComparison(site)}
     <div class="panel emotions-panel">
       <h2>كيف تشعر تجاه ما رأيت؟</h2>
+      <p class="emotion-instruction">اختر الوجه الذي يعبّر عن درجة شعورك في كل سطر.</p>
       <div class="emotion-list">
         ${EMOTIONS.map((emotion) => renderEmotionRow(emotion)).join("")}
       </div>
@@ -473,12 +467,20 @@ function renderImagesPhase() {
   `;
 
   attachImageFallbacks(el);
+  bindImageComparison(el);
 
-  el.querySelectorAll(".info-button").forEach((button) => {
-    button.addEventListener("click", () => {
-      const target = el.querySelector(`#definition-${button.dataset.emotion}`);
-      target.hidden = !target.hidden;
-    });
+  const infoButton = el.querySelector(".site-info-button");
+  const infoCard = el.querySelector(".site-info-card");
+  const closeInfo = el.querySelector(".site-info-close");
+  infoButton.addEventListener("click", () => {
+    infoCard.hidden = !infoCard.hidden;
+    infoButton.setAttribute("aria-expanded", String(!infoCard.hidden));
+    if (!infoCard.hidden) closeInfo.focus();
+  });
+  closeInfo.addEventListener("click", () => {
+    infoCard.hidden = true;
+    infoButton.setAttribute("aria-expanded", "false");
+    infoButton.focus();
   });
 
   el.querySelectorAll(".emotion-choice").forEach((button) => {
@@ -489,6 +491,7 @@ function renderImagesPhase() {
       answers[emotion] = value;
       el.querySelectorAll(`.emotion-choice[data-emotion="${emotion}"]`).forEach((choice) => {
         choice.classList.toggle("selected", choice === button);
+        choice.setAttribute("aria-pressed", String(choice === button));
       });
       el.querySelector("#next-site").disabled = !areEmotionsComplete(answers);
     });
@@ -514,23 +517,43 @@ function renderImagesPhase() {
   });
 }
 
-function renderImageCard(label, type, src) {
+function renderImageComparison(site) {
   return `
-    <article class="image-card ${type}">
-      <div class="image-badge">${label}</div>
-      <div class="image-frame">
-        <img src="${src}" alt="${label}" loading="eager" decoding="async" fetchpriority="high">
-        <div class="image-placeholder" hidden>
-          <strong>الصورة غير متوفرة حالياً</strong>
-          <span>يرجى إضافة الصورة إلى مجلد الصور بالاسم المحدد في المواصفة.</span>
+    <div class="comparison-wrap">
+      <div class="comparison-card" style="--split: 50%">
+        <div class="comparison-layer comparison-after" data-image-shell>
+          <img src="${site.after}" alt="${site.name} بعد الحرب" loading="eager" decoding="async" fetchpriority="high">
+          <div class="image-placeholder" hidden><strong>الصورة غير متوفرة حالياً</strong></div>
         </div>
+        <div class="comparison-layer comparison-before" data-image-shell>
+          <img src="${site.before}" alt="${site.name} قبل الحرب" loading="eager" decoding="async" fetchpriority="high">
+          <div class="image-placeholder" hidden><strong>الصورة غير متوفرة حالياً</strong></div>
+        </div>
+        <span class="comparison-label comparison-label-after">بعد الحرب</span>
+        <span class="comparison-label comparison-label-before">قبل الحرب</span>
+        <div class="comparison-divider" aria-hidden="true"><span>↔</span></div>
+        <input class="comparison-range" type="range" min="0" max="100" value="50" dir="ltr" aria-label="اسحب لمقارنة صورة الموقع قبل الحرب وبعدها" aria-valuetext="عرض متوازن للصورتين">
       </div>
-    </article>
+      <p class="comparison-hint"><span aria-hidden="true">↔</span> اسحب أفقياً لاكتشاف الصورة قبل الحرب وبعدها</p>
+    </div>
   `;
 }
 
+function bindImageComparison(scope) {
+  const card = scope.querySelector(".comparison-card");
+  const range = scope.querySelector(".comparison-range");
+  const update = () => {
+    const value = Number(range.value);
+    card.style.setProperty("--split", `${value}%`);
+    const description = value < 35 ? "إظهار أكبر للصورة بعد الحرب" : value > 65 ? "إظهار أكبر للصورة قبل الحرب" : "عرض متوازن للصورتين";
+    range.setAttribute("aria-valuetext", description);
+  };
+  range.addEventListener("input", update);
+  update();
+}
+
 function attachImageFallbacks(scope) {
-  scope.querySelectorAll(".image-frame").forEach((frame) => {
+  scope.querySelectorAll("[data-image-shell]").forEach((frame) => {
     const image = frame.querySelector("img");
     const placeholder = frame.querySelector(".image-placeholder");
     placeholder.hidden = true;
@@ -547,19 +570,66 @@ function attachImageFallbacks(scope) {
 
 function renderEmotionRow(emotion) {
   return `
-    <div class="emotion-row">
+    <div class="emotion-row emotion-${emotion.id}">
       <div class="emotion-name">
-        <span class="emotion-symbol">${emotion.symbol}</span>
-        <span>${emotion.label}</span>
-        <button class="info-button" type="button" data-emotion="${emotion.id}" aria-label="عرض تعريف الشعور ${emotion.label}">ⓘ</button>
+        <strong>${emotion.label}</strong>
       </div>
-      <div class="emotion-definition" id="definition-${emotion.id}" hidden>${emotion.def}</div>
-      <div class="emotion-scale" role="group" aria-label="${emotion.label}">
-        ${[1, 2, 3, 4, 5].map((value) => `
-          <button class="emotion-choice" type="button" data-emotion="${emotion.id}" data-value="${value}">${value}</button>
-        `).join("")}
+      <div class="emotion-scale" role="group" aria-label="درجة شعور ${emotion.label}">
+        ${[1, 2, 3, 4, 5].map((value) => {
+          return `
+            <button class="emotion-choice" type="button" data-emotion="${emotion.id}" data-value="${value}" aria-label="${emotion.label}: الدرجة ${value} من 5" aria-pressed="false">
+              ${renderEmotionFace(emotion.id, value)}
+            </button>
+          `;
+        }).join("")}
       </div>
     </div>
+  `;
+}
+
+function renderEmotionFace(emotionId, value) {
+  const color = EMOTION_FACE_COLORS[emotionId];
+  const isPositive = ["hope", "belonging", "pride", "happiness"].includes(emotionId);
+  const isAnger = emotionId === "anger";
+  const isFear = emotionId === "fear";
+  const strong = value >= 4;
+
+  let eyes = `<circle cx="23" cy="27" r="2.5"></circle><circle cx="41" cy="27" r="2.5"></circle>`;
+  if (isAnger && value >= 3) {
+    eyes = `<path d="M18 23 L27 27"></path><path d="M46 23 L37 27"></path><circle cx="23" cy="29" r="2"></circle><circle cx="41" cy="29" r="2"></circle>`;
+  } else if (isPositive && strong) {
+    eyes = `<path d="M18 28 Q23 22 28 28"></path><path d="M36 28 Q41 22 46 28"></path>`;
+  } else if (isFear && strong) {
+    eyes = `<circle cx="23" cy="26" r="3.4"></circle><circle cx="41" cy="26" r="3.4"></circle>`;
+  }
+
+  let mouth = `<path d="M21 40 L43 40"></path>`;
+  if (value > 1 && isPositive) {
+    const curve = value === 2 ? 43 : value === 3 ? 47 : value === 4 ? 50 : 52;
+    mouth = `<path d="M18 36 Q32 ${curve} 46 36"></path>`;
+  } else if (value > 1 && emotionId === "sadness") {
+    const curve = value >= 4 ? 27 : value === 3 ? 30 : 34;
+    mouth = `<path d="M18 45 Q32 ${curve} 46 45"></path>`;
+  } else if (value > 1 && isAnger) {
+    const curve = value >= 4 ? 29 : 33;
+    mouth = `<path d="M18 44 Q32 ${curve} 46 44"></path>`;
+  } else if (value > 1 && isFear) {
+    const radiusY = value >= 4 ? 9 : value === 3 ? 6 : 3;
+    mouth = `<ellipse cx="32" cy="42" rx="7" ry="${radiusY}"></ellipse>`;
+  }
+
+  const accent = emotionId === "sadness" && value >= 4
+    ? `<path class="face-accent" d="M45 31 C49 36 49 39 45 41 C41 39 41 36 45 31 Z"></path>`
+    : "";
+
+  return `
+    <span class="emotion-face" aria-hidden="true" style="--face-color:${color}" data-level="${value}">
+      <svg viewBox="0 0 64 64" focusable="false">
+        <circle class="face-disc" cx="32" cy="32" r="27"></circle>
+        <g class="face-details">${eyes}${mouth}</g>
+        ${accent}
+      </svg>
+    </span>
   `;
 }
 
@@ -579,16 +649,18 @@ function renderThankyou() {
       <p class="eyebrow">اكتملت المشاركة</p>
       <h1>شكراً لمساهمتك</h1>
       <p>${STUDY_TEXT.thankyou}</p>
-      <div class="panel success-panel">
-        <p>تم الحفظ المحلي بنجاح. يمكن إغلاق هذه الصفحة الآن.</p>
-      </div>
-      <div class="panel save-status-panel" id="remote-save-status" aria-live="polite">
-        <p>${getRemoteSaveMessage()}</p>
+      <div class="panel share-panel">
+        <div class="share-icon" aria-hidden="true">↗</div>
+        <h2>شارك مع الأصدقاء</h2>
+        <p>ساعدنا في الوصول إلى مشاركين أكثر عبر مشاركة رابط المنصة.</p>
+        <button class="btn primary" type="button" id="copy-share-link">نسخ رابط المنصة</button>
+        <p class="share-feedback" id="share-feedback" aria-live="polite"></p>
       </div>
       <button class="btn secondary" type="button" id="clear-local">بدء مشاركة جديدة</button>
     </div>
   `;
   finalizeRemoteSave();
+  document.getElementById("copy-share-link").addEventListener("click", copyPlatformLink);
   document.getElementById("clear-local").addEventListener("click", () => {
     localStorage.removeItem(STORAGE_KEY);
     localStorage.removeItem("mosul_memory_platform_final_payload_v1");
@@ -596,6 +668,44 @@ function renderThankyou() {
     renderAllStaticShells();
     goToPhase(0);
   });
+}
+
+async function copyPlatformLink() {
+  const button = document.getElementById("copy-share-link");
+  const feedback = document.getElementById("share-feedback");
+  const url = new URL(window.location.href);
+  url.search = "";
+  url.hash = "";
+
+  try {
+    let copied = false;
+    if (navigator.clipboard && window.isSecureContext) {
+      try {
+        await navigator.clipboard.writeText(url.toString());
+        copied = true;
+      } catch (_clipboardError) {
+        copied = false;
+      }
+    }
+
+    if (!copied) {
+      const input = document.createElement("textarea");
+      input.value = url.toString();
+      input.setAttribute("readonly", "");
+      input.style.position = "fixed";
+      input.style.opacity = "0";
+      document.body.appendChild(input);
+      input.select();
+      copied = document.execCommand("copy");
+      input.remove();
+    }
+
+    if (!copied) throw new Error("تعذر نسخ الرابط");
+    button.textContent = "تم نسخ الرابط ✓";
+    feedback.textContent = "الرابط جاهز للمشاركة مع أصدقائك.";
+  } catch (_error) {
+    feedback.textContent = "تعذر النسخ التلقائي. انسخ رابط الصفحة من شريط المتصفح.";
+  }
 }
 
 function getRemoteSaveMessage() {

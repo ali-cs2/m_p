@@ -12,10 +12,10 @@ const STUDY_TEXT = {
   stages: [
     "الموافقة على المشاركة.",
     "إدخال البيانات الديمغرافية.",
-    "الإجابة عن مقياس الهوية الوطنية.",
-    "الإجابة عن مقياس الصمود النفسي.",
+    "الإجابة عن مجموعة الأسئلة الأولى.",
+    "الإجابة عن مجموعة الأسئلة الثانية.",
     "مشاهدة الصور والإجابة عن مشاعرك تجاه كل صورة.",
-    "إعادة تطبيق مقياسي الهوية الوطنية والصمود النفسي."
+    "إكمال مجموعتي الأسئلة الختاميتين."
   ],
   privacyHeading: "سياسة الخصوصية وسرية المعلومات",
   privacy: [
@@ -39,18 +39,18 @@ const STUDY_TEXT = {
     "يفضل إكمال جميع مراحل الدراسة في جلسة واحدة للحصول على نتائج أكثر دقة."
   ],
   imageInstructions: "يرجى تقييم مدى شعورك بكل انفعال عند مشاهدة الصورة، وذلك وفقاً لما تعنيه لك الصورة في هذه اللحظة. لا توجد إجابات صحيحة أو خاطئة، وإنما يهمنا شعورك الشخصي.",
-  thankyou: "تم حفظ إجاباتك محلياً بنجاح، وستسهم مشاركتك في دعم البحث العلمي وخدمة تراث مدينة الموصل."
+  thankyou: "اكتملت مشاركتك بنجاح. شكراً لوقتك ولمساهمتك القيّمة في دعم البحث العلمي وخدمة تراث مدينة الموصل."
 };
 
 const PHASES = [
   { id: "welcome", label: "الترحيب" },
   { id: "consent", label: "الموافقة" },
   { id: "demographics", label: "البيانات" },
-  { id: "national-pre", label: "الهوية القبلية" },
-  { id: "resilience-pre", label: "الصمود القبلي" },
+  { id: "national-pre", label: "القسم الأول" },
+  { id: "resilience-pre", label: "القسم الثاني" },
   { id: "images", label: "الصور" },
-  { id: "national-post", label: "الهوية البعدية" },
-  { id: "resilience-post", label: "الصمود البعدي" },
+  { id: "national-post", label: "القسم الثالث" },
+  { id: "resilience-post", label: "القسم الأخير" },
   { id: "thankyou", label: "الشكر" }
 ];
 
@@ -58,11 +58,11 @@ const DEMO_FIELDS = [
   { id: "name", label: "الاسم", type: "text" },
   { id: "age_range", label: "الفئة العمرية", type: "select", options: ["18–20", "21–23", "24–26", "27–29"] },
   { id: "gender", label: "الجنس", type: "radio", options: ["ذكر", "أنثى"] },
-  { id: "academic_qualification", label: "التحصيل الدراسي", type: "select", options: ["إعدادية", "دبلوم", "بكالوريوس", "ماجستير", "دكتوراه", "أخرى"] },
-  { id: "study_stage", label: "المرحلة الدراسية", type: "select", options: ["الأولى", "الثانية", "الثالثة", "الرابعة", "الخامسة", "السادسة", "لا ينطبق"] },
+  { id: "academic_qualification", label: "التحصيل الدراسي", type: "select", options: ["بكالوريوس"] },
+  { id: "study_stage", label: "المرحلة الدراسية", type: "select", options: ["الأولى", "الثانية", "الثالثة", "الرابعة", "الخامسة", "السادسة"] },
   { id: "specialization", label: "التخصص", type: "text" },
   { id: "residence", label: "جانب السكن", type: "radio", options: ["الجانب الأيمن", "الجانب الأيسر"] },
-  { id: "economic_level", label: "المستوى الاقتصادي / طبيعة العمل", type: "select", options: ["طالب", "عامل", "كاسب", "موظف حكومي", "موظف قطاع خاص", "أعمال حرة", "عاطل عن العمل", "أخرى"] },
+  { id: "economic_level", label: "طبيعة العمل", type: "select", options: ["دراسة مع العمل", "دراسة فقط", "موظف حكومي مجاز دراسياً"] },
   { id: "religion", label: "الديانة", type: "text" },
   { id: "marital_status", label: "الحالة الاجتماعية", type: "select", options: ["أعزب/عزباء", "متزوج/متزوجة", "مطلق/مطلقة", "أرمل/أرملة"] },
   { id: "profession", label: "المهنة", type: "text" }
@@ -119,24 +119,24 @@ const NATIONAL_ITEMS = [
 ];
 
 const SITES = [
-  { id: 1, name: "جامع النوري الكبير", before: "images/site_01_before.jpg", after: "images/site_01_after.jpg" },
-  { id: 2, name: "منارة الحدباء", before: "images/site_02_before.jpg", after: "images/site_02_after.jpg" },
-  { id: 3, name: "جامع النبي يونس", before: "images/site_03_before.jpg", after: "images/site_03_after.jpg" },
-  { id: 4, name: "جامع الباشا", before: "images/site_04_before.jpg", after: "images/site_04_after.jpg" },
-  { id: 5, name: "جامع المصفي", before: "images/site_05_before.jpg", after: "images/site_05_after.jpg" },
-  { id: 6, name: "باب السراي", before: "images/site_06_before.jpg", after: "images/site_06_after.jpg" },
-  { id: 7, name: "خان الكمرك", before: "images/site_07_before.jpg", after: "images/site_07_after.jpg" },
-  { id: 8, name: "حمام المنقوشة", before: "images/site_08_before.jpg", after: "images/site_08_after.jpg" },
-  { id: 9, name: "كنيسة الساعة", before: "images/site_09_before.jpg", after: "images/site_09_after.jpg" },
-  { id: 10, name: "كنيسة الطاهرة", before: "images/site_10_before.jpg", after: "images/site_10_after.jpg" }
+  { id: 1, name: "جامع النوري الكبير", before: "images/site_01_before.jpg", after: "images/site_01_after.jpg", info: "أحد أبرز معالم الموصل القديمة، ويرتبط في الذاكرة المحلية بمنارة الحدباء وبالهوية المعمارية والدينية للمدينة. تعرض لأضرار كبيرة خلال الحرب وشهد لاحقاً جهوداً لإعادة الإعمار." },
+  { id: 2, name: "منارة الحدباء", before: "images/site_02_before.jpg", after: "images/site_02_after.jpg", info: "من أشهر رموز مدينة الموصل، عُرفت بميلانها المميز وشكلها المعماري الفريد، وأصبحت صورتها جزءاً أساسياً من هوية المدينة وذاكرتها البصرية." },
+  { id: 3, name: "جامع النبي يونس", before: "images/site_03_before.jpg", after: "images/site_03_after.jpg", info: "موقع ديني وتاريخي مهم أُقيم فوق تل أثري بارز في الجانب الأيسر من الموصل، وظل لسنوات طويلة حاضراً في الذاكرة الدينية والاجتماعية لسكان المدينة." },
+  { id: 4, name: "جامع الباشا", before: "images/site_04_before.jpg", after: "images/site_04_after.jpg", info: "جامع تراثي في قلب النسيج التاريخي للموصل، يتميز بعناصر معمارية محلية تعكس أساليب البناء والزخرفة التي عُرفت بها المدينة القديمة." },
+  { id: 5, name: "جامع المصفي", before: "images/site_05_before.jpg", after: "images/site_05_after.jpg", info: "أحد جوامع الموصل التراثية المرتبطة بأحيائها القديمة، ويمثل جزءاً من المشهد الديني والعمراني الذي شكّل الحياة اليومية في المدينة." },
+  { id: 6, name: "باب السراي", before: "images/site_06_before.jpg", after: "images/site_06_after.jpg", info: "منطقة تاريخية وتجارية معروفة في الموصل القديمة، ارتبطت بالأسواق والحرف والحركة اليومية، وتحتفظ بمكانة مهمة في الذاكرة الاجتماعية للمدينة." },
+  { id: 7, name: "خان الكمرك", before: "images/site_07_before.jpg", after: "images/site_07_after.jpg", info: "خان تجاري تراثي يعكس دور الموصل التاريخي كمحطة للتبادل والتجارة، ويقدم نموذجاً لعمارة الخانات والأسواق داخل المدينة القديمة." },
+  { id: 8, name: "حمام المنقوشة", before: "images/site_08_before.jpg", after: "images/site_08_after.jpg", info: "حمام موصلي تقليدي يمثل جانباً من العمارة الاجتماعية والخدمية القديمة، ويكشف عن تفاصيل الحياة اليومية وأساليب البناء المحلية في الأزقة التاريخية." },
+  { id: 9, name: "كنيسة الساعة", before: "images/site_09_before.jpg", after: "images/site_09_after.jpg", info: "معلم بارز من معالم التراث المسيحي في الموصل، اشتهر ببرج الساعة وحضوره المعماري المميز، ويجسد التنوع الديني والثقافي العريق للمدينة." },
+  { id: 10, name: "كنيسة الطاهرة", before: "images/site_10_before.jpg", after: "images/site_10_after.jpg", info: "من الكنائس التاريخية المهمة في الموصل القديمة، وتمثل شاهداً على عمق الوجود المسيحي وعلى التنوع المعماري والثقافي الذي تميزت به المدينة." }
 ];
 
 const EMOTIONS = [
-  { id: "hope", label: "الأمل", symbol: "🌱", def: "شعور بالتفاؤل وإمكانية تحسن المستقبل." },
-  { id: "belonging", label: "الانتماء", symbol: "🤝", def: "شعور بأنك جزء من المكان أو المجتمع." },
-  { id: "pride", label: "الفخر", symbol: "🏆", def: "شعور بالاعتزاز والكرامة." },
-  { id: "happiness", label: "السعادة", symbol: "😊", def: "شعور بالفرح والرضا." },
-  { id: "sadness", label: "الحزن", symbol: "😢", def: "شعور بالأسى أو الألم." },
-  { id: "anger", label: "الغضب", symbol: "😠", def: "شعور بالاستياء أو السخط." },
-  { id: "fear", label: "الخوف", symbol: "😨", def: "شعور بالتهديد أو عدم الأمان." }
+  { id: "hope", label: "الأمل" },
+  { id: "belonging", label: "الانتماء" },
+  { id: "pride", label: "الفخر" },
+  { id: "happiness", label: "السعادة" },
+  { id: "sadness", label: "الحزن" },
+  { id: "anger", label: "الغضب" },
+  { id: "fear", label: "الخوف" }
 ];
