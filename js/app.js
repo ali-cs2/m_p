@@ -430,33 +430,35 @@ function renderImagesPhase() {
   Timer.reset();
 
   el.innerHTML = `
-    <div class="site-heading-wrap">
-      <header class="section-header site-section-header">
-        <p class="eyebrow">الموقع ${current + 1} من ${SITES.length}</p>
-        <div class="site-title-line">
-          <h1>${site.name}</h1>
-          <button class="site-info-button" type="button" aria-label="معلومات عن ${site.name}" aria-expanded="false" aria-controls="site-info-card">i</button>
-        </div>
-        <p>${STUDY_TEXT.imageInstructions}</p>
-      </header>
-      <aside class="site-info-card" id="site-info-card" hidden>
-        <button class="site-info-close" type="button" aria-label="إغلاق معلومات الموقع">×</button>
-        <p class="eyebrow">عن الموقع</p>
-        <h2>${site.name}</h2>
-        <p>${site.info}</p>
-      </aside>
-    </div>
-    <div class="mini-progress" aria-hidden="true"><span style="width:${Math.round(((current + 1) / SITES.length) * 100)}%"></span></div>
-    ${renderImageSwipe(site)}
-    <div class="panel emotions-panel">
-      <h2>كيف تشعر تجاه ما رأيت؟</h2>
-      <p class="emotion-instruction">اختر الوجه الذي يعبّر عن درجة شعورك في كل سطر.</p>
-      <div class="emotion-list">
-        ${EMOTIONS.map((emotion) => renderEmotionRow(emotion)).join("")}
+    <div class="images-shell theme-post">
+      <div class="site-heading-wrap">
+        <header class="section-header site-section-header">
+          <p class="eyebrow">الموقع ${current + 1} من ${SITES.length}</p>
+          <div class="site-title-line">
+            <h1>${site.name}</h1>
+            <button class="site-info-button" type="button" aria-label="معلومات عن ${site.name}" aria-expanded="false" aria-controls="site-info-card">i</button>
+          </div>
+          <p>${STUDY_TEXT.imageInstructions}</p>
+        </header>
+        <aside class="site-info-card" id="site-info-card" hidden>
+          <button class="site-info-close" type="button" aria-label="إغلاق معلومات الموقع">×</button>
+          <p class="eyebrow">عن الموقع</p>
+          <h2>${site.name}</h2>
+          <p>${site.info}</p>
+        </aside>
       </div>
-    </div>
-    <div class="actions">
-      <button class="btn primary" type="button" id="next-site" disabled>${current === SITES.length - 1 ? "إنهاء مرحلة الصور" : "الموقع التالي"}</button>
+      <div class="mini-progress" aria-hidden="true"><span style="width:${Math.round(((current + 1) / SITES.length) * 100)}%"></span></div>
+      ${renderImageSwipe(site)}
+      <div class="panel emotions-panel">
+        <h2>كيف تشعر تجاه ما رأيت؟</h2>
+        <p class="emotion-instruction">اختر الوجه الذي يعبّر عن درجة شعورك في كل سطر.</p>
+        <div class="emotion-list">
+          ${EMOTIONS.map((emotion) => renderEmotionRow(emotion)).join("")}
+        </div>
+      </div>
+      <div class="actions">
+        <button class="btn primary" type="button" id="next-site" disabled>${current === SITES.length - 1 ? "إنهاء مرحلة الصور" : "الموقع التالي"}</button>
+      </div>
     </div>
   `;
 
