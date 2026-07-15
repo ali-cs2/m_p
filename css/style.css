@@ -605,8 +605,9 @@ p {
   --scale-on-light: #242223;
 }
 
-/* Both closing questionnaires use the client's sage palette. */
-.scale-shell.theme-post {
+/* Both closing questionnaires and the image response phase share the client's sage palette. */
+.scale-shell.theme-post,
+.images-shell.theme-post {
   --scale-accent: #7d8c7b;
   --scale-accent-rgb: 125, 140, 123;
   --scale-deep: #112019;
@@ -823,6 +824,19 @@ p {
   position: relative;
 }
 
+.images-shell .site-section-header .eyebrow {
+  color: var(--scale-accent);
+}
+
+.images-shell > .mini-progress {
+  background: rgba(17, 32, 25, 0.3);
+  border-color: rgba(var(--scale-accent-rgb), 0.42);
+}
+
+.images-shell > .mini-progress span {
+  background: linear-gradient(90deg, var(--scale-deep), var(--scale-mid), var(--scale-light));
+}
+
 .site-section-header {
   margin-bottom: 1rem;
 }
@@ -929,6 +943,11 @@ p {
   user-select: none;
 }
 
+.images-shell .image-swipe-card {
+  border-color: rgba(var(--scale-accent-rgb), 0.72);
+  box-shadow: 0 28px 70px rgba(10, 18, 13, 0.42), 0 0 0 1px rgba(237, 242, 235, 0.12);
+}
+
 .image-swipe-card.is-dragging {
   cursor: grabbing;
 }
@@ -1016,6 +1035,10 @@ p {
 
 .image-swipe-before .image-swipe-label {
   background: rgba(50, 65, 55, 0.78);
+}
+
+.images-shell .image-swipe-after .image-swipe-label {
+  background: rgba(88, 104, 88, 0.84);
 }
 
 .image-swipe-cue {
@@ -1121,6 +1144,18 @@ p {
   padding: clamp(1rem, 3vw, 1.6rem);
 }
 
+.images-shell .emotions-panel {
+  color: var(--scale-on-light);
+  background:
+    radial-gradient(circle at 90% 5%, rgba(255, 255, 255, 0.58), transparent 25rem),
+    linear-gradient(145deg, #dfe6dc 0%, #b6c2b2 50%, #7d8c7b 100%);
+  border-color: rgba(237, 242, 235, 0.68);
+}
+
+.images-shell .emotions-panel::before {
+  background: linear-gradient(110deg, rgba(255, 255, 255, 0.16), transparent 38%, rgba(17, 32, 25, 0.08));
+}
+
 .emotions-panel h2,
 .emotion-instruction {
   text-align: center;
@@ -1128,6 +1163,11 @@ p {
 
 .emotion-instruction {
   color: var(--text-muted);
+}
+
+.images-shell .emotions-panel h2,
+.images-shell .emotion-instruction {
+  color: var(--scale-on-light);
 }
 
 .emotion-list {
@@ -1152,6 +1192,16 @@ p {
   transform: translateX(-3px);
 }
 
+.images-shell .emotion-row {
+  background: linear-gradient(115deg, rgba(237, 242, 235, 0.68), rgba(125, 140, 123, 0.3));
+  border-color: rgba(17, 32, 25, 0.16);
+}
+
+.images-shell .emotion-row:hover {
+  border-color: rgba(17, 32, 25, 0.34);
+  box-shadow: 0 10px 24px rgba(17, 32, 25, 0.1);
+}
+
 .emotion-name {
   display: flex;
   align-items: center;
@@ -1161,6 +1211,10 @@ p {
   color: var(--sage-pale);
   font-size: 1.02rem;
   font-weight: 700;
+}
+
+.images-shell .emotion-name {
+  color: var(--scale-on-light);
 }
 
 .emotion-scale {
@@ -1187,6 +1241,12 @@ p {
 .emotion-choice:nth-child(3) { background: #7d8c7b; }
 .emotion-choice:nth-child(4) { background: #b8c4b4; }
 .emotion-choice:nth-child(5) { background: #edf2eb; }
+
+.images-shell .emotion-choice:nth-child(1) { background: #26382e; }
+.images-shell .emotion-choice:nth-child(2) { background: #435447; }
+.images-shell .emotion-choice:nth-child(3) { background: #697965; }
+.images-shell .emotion-choice:nth-child(4) { background: #9caa99; }
+.images-shell .emotion-choice:nth-child(5) { background: #dfe6dc; }
 
 .emotion-face {
   display: block;
@@ -1258,6 +1318,12 @@ p {
   transform: translateY(-4px) scale(1.03);
 }
 
+.images-shell .emotion-choice:hover,
+.images-shell .emotion-choice:focus-visible {
+  border-color: var(--scale-light);
+  box-shadow: 0 0 0 3px rgba(17, 32, 25, 0.2), 0 12px 25px rgba(17, 32, 25, 0.24);
+}
+
 .emotion-choice:hover .emotion-face,
 .emotion-choice:focus-visible .emotion-face {
   transform: scale(1.14);
@@ -1286,6 +1352,12 @@ p {
   border-color: #fff;
   box-shadow: 0 0 0 3px rgba(184, 196, 180, 0.28), 0 14px 30px rgba(0, 0, 0, 0.32);
   transform: translateY(-4px) scale(1.035);
+}
+
+.images-shell .emotion-choice.selected {
+  background: linear-gradient(145deg, #586858, #26382e);
+  border-color: var(--scale-light);
+  box-shadow: 0 0 0 3px rgba(var(--scale-accent-rgb), 0.3), 0 14px 30px rgba(17, 32, 25, 0.34);
 }
 
 .emotion-choice.selected::after {
